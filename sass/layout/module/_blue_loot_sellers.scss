@@ -1,0 +1,235 @@
+// Blue Loot Sellers Module styles
+
+.pf-system-blue-loot-sellers-module {
+  .pf-module-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    min-height: 200px;
+  }
+
+  .pf-module-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+
+    .pf-module-selector-label {
+      font-weight: bold;
+      color: $gray-darker;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .pf-module-selector {
+      flex: 1;
+      max-width: 250px;
+      height: 30px;
+      font-size: 12px;
+      border: 1px solid $gray-light;
+      border-radius: 4px;
+      background-color: $white;
+      
+      &:focus {
+        border-color: $brand-primary;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba($brand-primary, 0.2);
+      }
+    }
+  }
+
+  .pf-module-system-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 300px;
+    
+    .list-group {
+      margin-bottom: 0;
+      
+      .list-group-item {
+        position: relative;
+        padding: 8px 12px;
+        border: 1px solid $gray-lighter;
+        background-color: $white;
+        
+        &:first-child {
+          border-top-left-radius: 4px;
+          border-top-right-radius: 4px;
+        }
+        
+        &:last-child {
+          border-bottom-left-radius: 4px;
+          border-bottom-right-radius: 4px;
+        }
+        
+        + .list-group-item {
+          border-top: 0;
+        }
+        
+        &:hover {
+          background-color: $gray-lightest;
+        }
+      }
+    }
+  }
+
+  .pf-module-system-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 45px;
+    
+    .pf-module-system-name {
+      font-weight: 600;
+      color: $gray-darker;
+      flex: 1;
+    }
+    
+    .pf-module-system-distance {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-right: 10px;
+      min-width: 60px;
+      text-align: center;
+      
+      &.text-success {
+        background-color: rgba($brand-success, 0.1);
+        color: $brand-success;
+      }
+      
+      &.text-warning {
+        background-color: rgba($brand-warning, 0.1);
+        color: $brand-warning;
+      }
+      
+      &.text-danger {
+        background-color: rgba($brand-danger, 0.1);
+        color: $brand-danger;
+      }
+    }
+    
+    .pf-module-system-actions {
+      .pf-module-set-dest-btn {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 3px;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+
+  .pf-module-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-top: 1px solid $gray-lighter;
+    margin-top: 10px;
+    
+    .pf-module-page-info {
+      font-size: 12px;
+      color: $gray-dark;
+      font-weight: 500;
+    }
+    
+    .btn {
+      font-size: 11px;
+      padding: 4px 12px;
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  // Empty state styling
+  .text-muted {
+    text-align: center;
+    color: $gray;
+    font-style: italic;
+    padding: 20px;
+  }
+
+  // Modal overrides for import dialog
+  .modal {
+    .modal-dialog {
+      max-width: 500px;
+    }
+    
+    .modal-header {
+      .modal-title {
+        color: $gray-darker;
+        font-weight: 600;
+      }
+    }
+    
+    .modal-body {
+      .form-group {
+        margin-bottom: 15px;
+        
+        label {
+          font-weight: 600;
+          color: $gray-darker;
+          margin-bottom: 5px;
+        }
+        
+        .form-control {
+          border-color: $gray-light;
+          
+          &:focus {
+            border-color: $brand-primary;
+            box-shadow: 0 0 0 2px rgba($brand-primary, 0.2);
+          }
+        }
+        
+        textarea.form-control {
+          resize: vertical;
+          min-height: 120px;
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments for smaller screens
+@media (max-width: 768px) {
+  .pf-system-blue-loot-sellers-module {
+    .pf-module-selector-container {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 5px;
+      
+      .pf-module-selector {
+        max-width: none;
+      }
+    }
+    
+    .pf-module-system-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      
+      .pf-module-system-distance {
+        margin-right: 0;
+        align-self: flex-start;
+      }
+      
+      .pf-module-system-actions {
+        align-self: stretch;
+        
+        .pf-module-set-dest-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+}

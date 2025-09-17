@@ -1,2 +1,4312 @@
-var _extends=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var n=arguments[e];for(var i in n)Object.prototype.hasOwnProperty.call(n,i)&&(t[i]=n[i])}return t},_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t};!function(t,e){"object"===("undefined"==typeof exports?"undefined":_typeof(exports))&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define("PNotify",e):t.PNotify=e()}(this,function(){"use strict";var t=void 0,e=void 0,n=function(){t.defaultStack.context=document.body,window.addEventListener("resize",function(){e&&clearTimeout(e),e=setTimeout(function(){t.positionAll()},10)})},i=function(t){t.overlay.parentNode&&t.overlay.parentNode.removeChild(t.overlay)},o=function(t,e){return"object"!==(void 0===t?"undefined":_typeof(t))&&(t={text:t}),e&&(t.type=e),{target:document.body,data:t}};var s={runModules:function(e){if("init"===e){for(var n in t.modules)if(t.modules.hasOwnProperty(n)&&"function"==typeof t.modules[n].init){var i=t.modules[n].init(this);this.initModule(i)}}else{var o=this.get()._modules;for(var s in o)if(o.hasOwnProperty(s)){var r=_extends({_notice:this,_options:this.get()},this.get().modules[s]);o[s].set(r),"function"==typeof o[s][e]&&o[s][e]()}}},initModule:function(t){var e=this.get().modules;e.hasOwnProperty(t.constructor.key)||(e[t.constructor.key]={});var n=_extends({_notice:this,_options:this.get()},e[t.constructor.key]);t.initModule(n),this.get()._modules[t.constructor.key]=t},update:function(t){var e=this.get().hide,n=this.get().icon;this.set(t),this.runModules("update"),this.get().hide?e||this.queueClose():this.cancelClose(),this.queuePosition();var i=this.get().icon;return i!==n&&(!0===i&&"fontawesome5"===this.get().icons||"string"==typeof i&&i.match(/(^| )fa[srlb]($| )/))&&(this.set({icon:!1}),this.set({icon:i})),this},open:function(){var e=this,n=this.get(),i=n._state,o=n.hide;if("opening"!==i){if("open"!==i){this.set({_state:"opening",_animatingClass:"ui-pnotify-initial-hidden"}),this.runModules("beforeOpen");var s=this.get().stack;if(!this.refs.elem.parentNode||s&&s.context&&s.context!==this.refs.elem.parentNode)if(s&&s.context)s.context.appendChild(this.refs.elem);else{if(!document.body)throw new Error("No context to open this notice in.");document.body.appendChild(this.refs.elem)}return setTimeout(function(){s&&(s.animation=!1,t.positionAll(),s.animation=!0),e.animateIn(function(){e.get().hide&&e.queueClose(),e.set({_state:"open"}),e.runModules("afterOpen")})},0),this}o&&this.queueClose()}},remove:function(t){return this.close(t)},close:function(e){var n=this,i=this.get()._state;if("closing"!==i&&"closed"!==i){this.set({_state:"closing",_timerHide:!!e}),this.runModules("beforeClose");var o=this.get()._timer;return o&&clearTimeout&&(clearTimeout(o),this.set({_timer:null})),this.animateOut(function(){if(n.set({_state:"closed"}),n.runModules("afterClose"),n.queuePosition(),n.get().remove&&n.refs.elem.parentNode.removeChild(n.refs.elem),n.runModules("beforeDestroy"),n.get().destroy&&null!==t.notices){var e=t.notices.indexOf(n);-1!==e&&t.notices.splice(e,1)}n.runModules("afterDestroy")}),this}},animateIn:function(t){var e=this;this.set({_animating:"in"});var n=function n(){e.refs.elem.removeEventListener("transitionend",n);var i=e.get(),o=i._animTimer,s=i._animating,r=i._moduleIsNoticeOpen;if(o&&clearTimeout(o),"in"===s){var a=r;if(!a){var c=e.refs.elem.getBoundingClientRect();for(var l in c)if(c[l]>0){a=!0;break}}a?(t&&t.call(),e.set({_animating:!1})):e.set({_animTimer:setTimeout(n,40)})}};"fade"===this.get().animation?(this.refs.elem.addEventListener("transitionend",n),this.set({_animatingClass:"ui-pnotify-in"}),this.refs.elem.style.opacity,this.set({_animatingClass:"ui-pnotify-in ui-pnotify-fade-in"}),this.set({_animTimer:setTimeout(n,650)})):(this.set({_animatingClass:"ui-pnotify-in"}),n())},animateOut:function(e){var n=this;this.set({_animating:"out"});var o=function o(){n.refs.elem.removeEventListener("transitionend",o);var s=n.get(),r=s._animTimer,a=s._animating,c=s._moduleIsNoticeOpen;if(r&&clearTimeout(r),"out"===a){var l=c;if(!l){var u=n.refs.elem.getBoundingClientRect();for(var f in u)if(u[f]>0){l=!0;break}}if(n.refs.elem.style.opacity&&"0"!==n.refs.elem.style.opacity&&l)n.set({_animTimer:setTimeout(o,40)});else{n.set({_animatingClass:""});var d=n.get().stack;if(d&&d.overlay){for(var p=!1,h=0;h<t.notices.length;h++){var m=t.notices[h];if(m!==n&&m.get().stack===d&&"closed"!==m.get()._state){p=!0;break}}p||i(d)}e&&e.call(),n.set({_animating:!1})}}};"fade"===this.get().animation?(this.refs.elem.addEventListener("transitionend",o),this.set({_animatingClass:"ui-pnotify-in"}),this.set({_animTimer:setTimeout(o,650)})):(this.set({_animatingClass:""}),o())},position:function(){var e=this.get().stack,n=this.refs.elem;if(e){if(e.context||(e.context=document.body),"number"!=typeof e.nextpos1&&(e.nextpos1=e.firstpos1),"number"!=typeof e.nextpos2&&(e.nextpos2=e.firstpos2),"number"!=typeof e.addpos2&&(e.addpos2=0),!n.classList.contains("ui-pnotify-in")&&!n.classList.contains("ui-pnotify-initial-hidden"))return this;e.modal&&(e.overlay||function(e){var n=document.createElement("div");n.classList.add("ui-pnotify-modal-overlay"),e.context!==document.body&&(n.style.height=e.context.scrollHeight+"px",n.style.width=e.context.scrollWidth+"px"),n.addEventListener("click",function(){e.overlayClose&&t.closeStack(e)}),e.overlay=n}(e),function(t){t.overlay.parentNode!==t.context&&(t.overlay=t.context.insertBefore(t.overlay,t.context.firstChild))}(e)),n.getBoundingClientRect(),e.animation&&this.set({_moveClass:"ui-pnotify-move"});var i=e.context===document.body?window.innerHeight:e.context.scrollHeight,o=e.context===document.body?window.innerWidth:e.context.scrollWidth,s=void 0;if(e.dir1){s={down:"top",up:"bottom",left:"right",right:"left"}[e.dir1];var r=void 0;switch(e.dir1){case"down":r=n.offsetTop;break;case"up":r=i-n.scrollHeight-n.offsetTop;break;case"left":r=o-n.scrollWidth-n.offsetLeft;break;case"right":r=n.offsetLeft}void 0===e.firstpos1&&(e.firstpos1=r,e.nextpos1=e.firstpos1)}if(e.dir1&&e.dir2){var a={down:"top",up:"bottom",left:"right",right:"left"}[e.dir2],c=void 0;switch(e.dir2){case"down":c=n.offsetTop;break;case"up":c=i-n.scrollHeight-n.offsetTop;break;case"left":c=o-n.scrollWidth-n.offsetLeft;break;case"right":c=n.offsetLeft}void 0===e.firstpos2&&(e.firstpos2=c,e.nextpos2=e.firstpos2);var l=e.nextpos1+n.offsetHeight+(void 0===e.spacing1?25:e.spacing1),u=e.nextpos1+n.offsetWidth+(void 0===e.spacing1?25:e.spacing1);switch((("down"===e.dir1||"up"===e.dir1)&&l>i||("left"===e.dir1||"right"===e.dir1)&&u>o)&&(e.nextpos1=e.firstpos1,e.nextpos2+=e.addpos2+(void 0===e.spacing2?25:e.spacing2),e.addpos2=0),"number"==typeof e.nextpos2&&(n.style[a]=e.nextpos2+"px",e.animation||n.style[a]),e.dir2){case"down":case"up":n.offsetHeight+(parseFloat(n.style.marginTop,10)||0)+(parseFloat(n.style.marginBottom,10)||0)>e.addpos2&&(e.addpos2=n.offsetHeight);break;case"left":case"right":n.offsetWidth+(parseFloat(n.style.marginLeft,10)||0)+(parseFloat(n.style.marginRight,10)||0)>e.addpos2&&(e.addpos2=n.offsetWidth)}}else if(e.dir1){var f=void 0,d=void 0;switch(e.dir1){case"down":case"up":d=["left","right"],f=e.context.scrollWidth/2-n.offsetWidth/2;break;case"left":case"right":d=["top","bottom"],f=i/2-n.offsetHeight/2}n.style[d[0]]=f+"px",n.style[d[1]]="auto",e.animation||n.style[d[0]]}if(e.dir1)switch("number"==typeof e.nextpos1&&(n.style[s]=e.nextpos1+"px",e.animation||n.style[s]),e.dir1){case"down":case"up":e.nextpos1+=n.offsetHeight+(void 0===e.spacing1?25:e.spacing1);break;case"left":case"right":e.nextpos1+=n.offsetWidth+(void 0===e.spacing1?25:e.spacing1)}else{var p=o/2-n.offsetWidth/2,h=i/2-n.offsetHeight/2;n.style.left=p+"px",n.style.top=h+"px",e.animation||n.style.left}return this}},queuePosition:function(n){return e&&clearTimeout(e),n||(n=10),e=setTimeout(function(){t.positionAll()},n),this},cancelRemove:function(){return this.cancelClose()},cancelClose:function(){var t=this.get(),e=t._timer,n=t._animTimer,i=t._state,o=t.animation;return e&&clearTimeout(e),n&&clearTimeout(n),"closing"===i&&this.set({_state:"open",_animating:!1,_animatingClass:"fade"===o?"ui-pnotify-in ui-pnotify-fade-in":"ui-pnotify-in"}),this},queueRemove:function(){return this.queueClose()},queueClose:function(){var t=this;return this.cancelClose(),this.set({_timer:setTimeout(function(){return t.close(!0)},isNaN(this.get().delay)?0:this.get().delay)}),this},addModuleClass:function(){for(var t=this.get()._moduleClasses,e=arguments.length,n=Array(e),i=0;i<e;i++)n[i]=arguments[i];for(var o=0;o<n.length;o++){var s=n[o];-1===t.indexOf(s)&&t.push(s)}this.set({_moduleClasses:t})},removeModuleClass:function(){for(var t=this.get()._moduleClasses,e=arguments.length,n=Array(e),i=0;i<e;i++)n[i]=arguments[i];for(var o=0;o<n.length;o++){var s=n[o],r=t.indexOf(s);-1!==r&&t.splice(r,1)}this.set({_moduleClasses:t})},hasModuleClass:function(){for(var t=this.get()._moduleClasses,e=arguments.length,n=Array(e),i=0;i<e;i++)n[i]=arguments[i];for(var o=0;o<n.length;o++){var s=n[o];if(-1===t.indexOf(s))return!1}return!0}};function r(t,e,n){var i=Object.create(t);return i.module=e[n],i}function a(t,e,n){var i=Object.create(t);return i.module=e[n],i}function c(t,e,n){var i,o,s=n.module;function r(e){return{root:t.root,store:t.store}}if(s)var a=new s(r());function c(e){t.initModule(e.module)}return a&&a.on("init",c),{key:e,first:null,c:function(){i=S(),a&&a._fragment.c(),o=S(),this.first=i},m:function(t,e){x(t,i,e),a&&a._mount(t,e),x(t,o,e)},p:function(t,e){s!==(s=e.module)&&(a&&a.destroy(),s?((a=new s(r()))._fragment.c(),a._mount(o.parentNode,o),a.on("init",c)):a=null)},d:function(t){t&&(T(i),T(o)),a&&a.destroy(t)}}}function l(t,e){var n,i,o,s;return{c:function(){n=v("div"),(i=v("span")).className=o=!0===e.icon?e._icons[e.type]?e._icons[e.type]:"":e.icon,n.className=s="ui-pnotify-icon "+(e._styles.icon?e._styles.icon:"")},m:function(e,o){x(e,n,o),_(n,i),t.refs.iconContainer=n},p:function(t,e){(t.icon||t._icons||t.type)&&o!==(o=!0===e.icon?e._icons[e.type]?e._icons[e.type]:"":e.icon)&&(i.className=o),t._styles&&s!==(s="ui-pnotify-icon "+(e._styles.icon?e._styles.icon:""))&&(n.className=s)},d:function(e){e&&T(n),t.refs.iconContainer===n&&(t.refs.iconContainer=null)}}}function u(t,e){var n,i;function o(t){return t.titleTrusted?d:f}var s=o(e),r=s(t,e);return{c:function(){n=v("h4"),r.c(),n.className=i="ui-pnotify-title "+(e._styles.title?e._styles.title:"")},m:function(e,i){x(e,n,i),r.m(n,null),t.refs.titleContainer=n},p:function(e,a){s===(s=o(a))&&r?r.p(e,a):(r.d(1),(r=s(t,a)).c(),r.m(n,null)),e._styles&&i!==(i="ui-pnotify-title "+(a._styles.title?a._styles.title:""))&&(n.className=i)},d:function(e){e&&T(n),r.d(),t.refs.titleContainer===n&&(t.refs.titleContainer=null)}}}function f(t,e){var n;return{c:function(){n=k(e.title)},m:function(t,e){x(t,n,e)},p:function(t,e){t.title&&L(n,e.title)},d:function(t){t&&T(n)}}}function d(t,e){var n,i;return{c:function(){n=v("noscript"),i=v("noscript")},m:function(t,o){x(t,n,o),n.insertAdjacentHTML("afterend",e.title),x(t,i,o)},p:function(t,e){t.title&&(B(n,i),n.insertAdjacentHTML("afterend",e.title))},d:function(t){t&&(B(n,i),T(n),T(i))}}}function p(t,e){var n,i;function o(t){return t.textTrusted?m:h}var s=o(e),r=s(t,e);return{c:function(){n=v("div"),r.c(),n.className=i="ui-pnotify-text "+(e._styles.text?e._styles.text:""),A(n,"role","alert")},m:function(e,i){x(e,n,i),r.m(n,null),t.refs.textContainer=n},p:function(e,a){s===(s=o(a))&&r?r.p(e,a):(r.d(1),(r=s(t,a)).c(),r.m(n,null)),e._styles&&i!==(i="ui-pnotify-text "+(a._styles.text?a._styles.text:""))&&(n.className=i)},d:function(e){e&&T(n),r.d(),t.refs.textContainer===n&&(t.refs.textContainer=null)}}}function h(t,e){var n;return{c:function(){n=k(e.text)},m:function(t,e){x(t,n,e)},p:function(t,e){t.text&&L(n,e.text)},d:function(t){t&&T(n)}}}function m(t,e){var n,i;return{c:function(){n=v("noscript"),i=v("noscript")},m:function(t,o){x(t,n,o),n.insertAdjacentHTML("afterend",e.text),x(t,i,o)},p:function(t,e){t.text&&(B(n,i),n.insertAdjacentHTML("afterend",e.text))},d:function(t){t&&(B(n,i),T(n),T(i))}}}function g(t,e,n){var i,o,s=n.module;function r(e){return{root:t.root,store:t.store}}if(s)var a=new s(r());function c(e){t.initModule(e.module)}return a&&a.on("init",c),{key:e,first:null,c:function(){i=S(),a&&a._fragment.c(),o=S(),this.first=i},m:function(t,e){x(t,i,e),a&&a._mount(t,e),x(t,o,e)},p:function(t,e){s!==(s=e.module)&&(a&&a.destroy(),s?((a=new s(r()))._fragment.c(),a._mount(o.parentNode,o),a.on("init",c)):a=null)},d:function(t){t&&(T(i),T(o)),a&&a.destroy(t)}}}function y(e){var n,i=this;!function(t,e){t._handlers=b(),t._slots=b(),t._bind=e._bind,t._staged={},t.options=e,t.root=e.root||t,t.store=e.store||t.root.store,e.root||(t._beforecreate=[],t._oncreate=[],t._aftercreate=[])}(this,e),this.refs={},this._state=P(function(){var e=_extends({_state:"initializing",_timer:null,_animTimer:null,_animating:!1,_animatingClass:"",_moveClass:"",_timerHide:!1,_moduleClasses:[],_moduleIsNoticeOpen:!1,_modules:{},_modulesPrependContainer:t.modulesPrependContainer,_modulesAppendContainer:t.modulesAppendContainer},t.defaults);return e.modules=_extends({},t.defaults.modules),e}(),e.data),this._recompute({styling:1,icons:1,width:1,minHeight:1},this._state),this._intro=!0,document.getElementById("svelte-1eldsjg-style")||((n=v("style")).id="svelte-1eldsjg-style",n.textContent='body > .ui-pnotify{position:fixed;z-index:100040}body > .ui-pnotify.ui-pnotify-modal{z-index:100042}.ui-pnotify{position:absolute;height:auto;z-index:1;display:none}.ui-pnotify.ui-pnotify-modal{z-index:3}.ui-pnotify.ui-pnotify-in{display:block}.ui-pnotify.ui-pnotify-initial-hidden{display:block;visibility:hidden}.ui-pnotify.ui-pnotify-move{transition:left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-slow{transition:opacity .4s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-slow.ui-pnotify.ui-pnotify-move{transition:opacity .4s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-normal{transition:opacity .25s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-normal.ui-pnotify.ui-pnotify-move{transition:opacity .25s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-fast{transition:opacity .1s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-fast.ui-pnotify.ui-pnotify-move{transition:opacity .1s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-in{opacity:1}.ui-pnotify .ui-pnotify-shadow{-webkit-box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1);-moz-box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1);box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1)}.ui-pnotify-container{background-position:0 0;padding:.8em;height:100%;margin:0}.ui-pnotify-container:after{content:" ";visibility:hidden;display:block;height:0;clear:both}.ui-pnotify-container.ui-pnotify-sharp{-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.ui-pnotify-title{display:block;white-space:pre-line;margin-bottom:.4em;margin-top:0}.ui-pnotify.ui-pnotify-with-icon .ui-pnotify-title,.ui-pnotify.ui-pnotify-with-icon .ui-pnotify-text{margin-left:24px}[dir=rtl] .ui-pnotify.ui-pnotify-with-icon .ui-pnotify-title,[dir=rtl] .ui-pnotify.ui-pnotify-with-icon .ui-pnotify-text{margin-right:24px;margin-left:0}.ui-pnotify-title-bs4{font-size:1.2rem}.ui-pnotify-text{display:block;white-space:pre-line}.ui-pnotify-icon,.ui-pnotify-icon span{display:block;float:left}[dir=rtl] .ui-pnotify-icon,[dir=rtl] .ui-pnotify-icon span{float:right}.ui-pnotify-icon-bs3 > span{position:relative;top:2px}.ui-pnotify-icon-bs4 > span{position:relative;top:4px}.ui-pnotify-modal-overlay{background-color:rgba(0, 0, 0, .4);top:0;left:0;position:absolute;height:100%;width:100%;z-index:2}body > .ui-pnotify-modal-overlay{position:fixed;z-index:100041}',_(document.head,n)),this._fragment=function(t,e){for(var n,i,o,s,f,d,h,m,y,S=[],L=b(),B=[],P=b(),O=e._modulesPrependContainer,M=function(t){return t.module.key},j=0;j<O.length;j+=1){var I=a(e,O,j),R=M(I);S[j]=L[R]=c(t,R,I)}var H=!1!==e.icon&&l(t,e),U=!1!==e.title&&u(t,e),z=!1!==e.text&&p(t,e),D=e._modulesAppendContainer,F=function(t){return t.module.key};for(j=0;j<D.length;j+=1){var X=r(e,D,j),J=F(X);B[j]=P[J]=g(t,J,X)}function q(e){t.fire("mouseover",e)}function Q(e){t.fire("mouseout",e)}function W(e){t.fire("mouseenter",e)}function Y(e){t.fire("mouseleave",e)}function K(e){t.fire("mousemove",e)}function V(e){t.fire("mousedown",e)}function G(e){t.fire("mouseup",e)}function Z(e){t.fire("click",e)}function $(e){t.fire("dblclick",e)}function tt(e){t.fire("focus",e)}function et(e){t.fire("blur",e)}function nt(e){t.fire("touchstart",e)}function it(e){t.fire("touchmove",e)}function ot(e){t.fire("touchend",e)}function st(e){t.fire("touchcancel",e)}return{c:function(){for(n=v("div"),i=v("div"),j=0;j<S.length;j+=1)S[j].c();for(o=k("\n    "),H&&H.c(),s=k("\n    "),U&&U.c(),f=k("\n    "),z&&z.c(),d=k("\n    "),j=0;j<B.length;j+=1)B[j].c();i.className=h="\n        ui-pnotify-container\n        "+(e._styles.container?e._styles.container:"")+"\n        "+(e._styles[e.type]?e._styles[e.type]:"")+"\n        "+e.cornerClass+"\n        "+(e.shadow?"ui-pnotify-shadow":"")+"\n      ",i.style.cssText=m=e._widthStyle+" "+e._minHeightStyle,A(i,"role","alert"),w(n,"mouseover",q),w(n,"mouseout",Q),w(n,"mouseenter",W),w(n,"mouseleave",Y),w(n,"mousemove",K),w(n,"mousedown",V),w(n,"mouseup",G),w(n,"click",Z),w(n,"dblclick",$),w(n,"focus",tt),w(n,"blur",et),w(n,"touchstart",nt),w(n,"touchmove",it),w(n,"touchend",ot),w(n,"touchcancel",st),n.className=y="\n      ui-pnotify\n      "+(!1!==e.icon?"ui-pnotify-with-icon":"")+"\n      "+(e._styles.element?e._styles.element:"")+"\n      "+e.addClass+"\n      "+e._animatingClass+"\n      "+e._moveClass+"\n      "+("fade"===e.animation?"ui-pnotify-fade-"+e.animateSpeed:"")+"\n      "+(e.stack&&e.stack.modal?"ui-pnotify-modal":"")+"\n      "+e._moduleClasses.join(" ")+"\n    ",A(n,"aria-live","assertive"),A(n,"role","alertdialog"),A(n,"ui-pnotify",!0)},m:function(e,r){for(x(e,n,r),_(n,i),j=0;j<S.length;j+=1)S[j].m(i,null);for(_(i,o),H&&H.m(i,null),_(i,s),U&&U.m(i,null),_(i,f),z&&z.m(i,null),_(i,d),j=0;j<B.length;j+=1)B[j].m(i,null);t.refs.container=i,t.refs.elem=n},p:function(e,v){var _=v._modulesPrependContainer;S=C(S,t,e,M,1,v,_,L,i,E,c,"m",o,a),!1!==v.icon?H?H.p(e,v):((H=l(t,v)).c(),H.m(i,s)):H&&(H.d(1),H=null),!1!==v.title?U?U.p(e,v):((U=u(t,v)).c(),U.m(i,f)):U&&(U.d(1),U=null),!1!==v.text?z?z.p(e,v):((z=p(t,v)).c(),z.m(i,d)):z&&(z.d(1),z=null);var b=v._modulesAppendContainer;B=C(B,t,e,F,1,v,b,P,i,E,g,"m",null,r),(e._styles||e.type||e.cornerClass||e.shadow)&&h!==(h="\n        ui-pnotify-container\n        "+(v._styles.container?v._styles.container:"")+"\n        "+(v._styles[v.type]?v._styles[v.type]:"")+"\n        "+v.cornerClass+"\n        "+(v.shadow?"ui-pnotify-shadow":"")+"\n      ")&&(i.className=h),(e._widthStyle||e._minHeightStyle)&&m!==(m=v._widthStyle+" "+v._minHeightStyle)&&(i.style.cssText=m),(e.icon||e._styles||e.addClass||e._animatingClass||e._moveClass||e.animation||e.animateSpeed||e.stack||e._moduleClasses)&&y!==(y="\n      ui-pnotify\n      "+(!1!==v.icon?"ui-pnotify-with-icon":"")+"\n      "+(v._styles.element?v._styles.element:"")+"\n      "+v.addClass+"\n      "+v._animatingClass+"\n      "+v._moveClass+"\n      "+("fade"===v.animation?"ui-pnotify-fade-"+v.animateSpeed:"")+"\n      "+(v.stack&&v.stack.modal?"ui-pnotify-modal":"")+"\n      "+v._moduleClasses.join(" ")+"\n    ")&&(n.className=y)},d:function(e){for(e&&T(n),j=0;j<S.length;j+=1)S[j].d();for(H&&H.d(),U&&U.d(),z&&z.d(),j=0;j<B.length;j+=1)B[j].d();t.refs.container===i&&(t.refs.container=null),N(n,"mouseover",q),N(n,"mouseout",Q),N(n,"mouseenter",W),N(n,"mouseleave",Y),N(n,"mousemove",K),N(n,"mousedown",V),N(n,"mouseup",G),N(n,"click",Z),N(n,"dblclick",$),N(n,"focus",tt),N(n,"blur",et),N(n,"touchstart",nt),N(n,"touchmove",it),N(n,"touchend",ot),N(n,"touchcancel",st),t.refs.elem===n&&(t.refs.elem=null)}}}(this,this._state),this.root._oncreate.push(function(){(function(){var e=this;this.on("mouseenter",function(t){if(e.get().mouseReset&&"out"===e.get()._animating){if(!e.get()._timerHide)return;e.cancelClose()}e.get().hide&&e.get().mouseReset&&e.cancelClose()}),this.on("mouseleave",function(n){e.get().hide&&e.get().mouseReset&&"out"!==e.get()._animating&&e.queueClose(),t.positionAll()});var n=this.get().stack;n&&"top"===n.push?t.notices.splice(0,0,this):t.notices.push(this),this.runModules("init"),this.set({_state:"closed"}),this.get().autoDisplay&&this.open()}).call(i),i.fire("update",{changed:function(t,e){for(var n in e)t[n]=1;return t}({},i._state),current:i._state})}),e.target&&(this._fragment.c(),this._mount(e.target,e.anchor),O(this))}function v(t){return document.createElement(t)}function _(t,e){t.appendChild(e)}function b(){return Object.create(null)}function k(t){return document.createTextNode(t)}function A(t,e,n){null==n?t.removeAttribute(e):t.setAttribute(e,n)}function w(t,e,n,i){t.addEventListener(e,n,i)}function x(t,e,n){t.insertBefore(e,n)}function C(t,e,n,i,o,s,r,a,c,l,u,f,d,p){for(var h=t.length,m=r.length,g=h,y={};g--;)y[t[g].key]=g;var v=[],_={},b={};for(g=m;g--;){var k=p(s,r,g),A=i(k),w=a[A];w?o&&w.p(n,k):(w=u(e,A,k)).c(),v[g]=_[A]=w,A in y&&(b[A]=Math.abs(g-y[A]))}var x={},C={};function E(t){t[f](c,d),a[t.key]=t,d=t.first,m--}for(;h&&m;){var T=v[m-1],N=t[h-1],S=T.key,L=N.key;T===N?(d=T.first,h--,m--):_[L]?!a[S]||x[S]?E(T):C[L]?h--:b[S]>b[L]?(C[S]=!0,E(T)):(x[L]=!0,h--):(l(N,a),h--)}for(;h--;){_[(N=t[h]).key]||l(N,a)}for(;m;)E(v[m-1]);return v}function E(t,e){t.d(1),e[t.key]=null}function T(t){t.parentNode.removeChild(t)}function N(t,e,n,i){t.removeEventListener(e,n,i)}function S(){return document.createComment("")}function L(t,e){t.data=""+e}function B(t,e){for(;t.nextSibling&&t.nextSibling!==e;)t.parentNode.removeChild(t.nextSibling)}function P(t,e){for(var n in e)t[n]=e[n];return t}function O(t){t._lock=!0,M(t._beforecreate),M(t._oncreate),M(t._aftercreate),t._lock=!1}function M(t){for(;t&&t.length;)t.shift()()}function j(){}return P(y.prototype,{destroy:function(t){this.destroy=j,this.fire("destroy"),this.set=j,this._fragment.d(!1!==t),this._fragment=null,this._state={}},get:function(){return this._state},fire:function(t,e){var n=t in this._handlers&&this._handlers[t].slice();if(!n)return;for(var i=0;i<n.length;i+=1){var o=n[i];if(!o.__calling)try{o.__calling=!0,o.call(this,e)}finally{o.__calling=!1}}},on:function(t,e){var n=this._handlers[t]||(this._handlers[t]=[]);return n.push(e),{cancel:function(){var t=n.indexOf(e);~t&&n.splice(t,1)}}},set:function(t){if(this._set(P({},t)),this.root._lock)return;O(this.root)},_set:function(t){var e=this._state,n={},i=!1;for(var o in t=P(this._staged,t),this._staged={},t)this._differs(t[o],e[o])&&(n[o]=i=!0);if(!i)return;this._state=P(P({},e),t),this._recompute(n,this._state),this._bind&&this._bind(n,this._state);this._fragment&&(this.fire("state",{changed:n,current:this._state,previous:e}),this._fragment.p(n,this._state),this.fire("update",{changed:n,current:this._state,previous:e}))},_stage:function(t){P(this._staged,t)},_mount:function(t,e){this._fragment[this._fragment.i?"i":"m"](t,e||null)},_differs:function(t,e){return t!=t?e==e:t!==e||t&&"object"===(void 0===t?"undefined":_typeof(t))||"function"==typeof t}}),P(y.prototype,s),y.prototype._recompute=function(e,n){var i,o,s,r;e.styling&&this._differs(n._styles,n._styles="object"===(void 0===(i=n.styling)?"undefined":_typeof(i))?i:t.styling[i])&&(e._styles=!0),e.icons&&this._differs(n._icons,n._icons="object"===(void 0===(o=n.icons)?"undefined":_typeof(o))?o:t.icons[o])&&(e._icons=!0),e.width&&this._differs(n._widthStyle,n._widthStyle="string"==typeof(s=n.width)?"width: "+s+";":"")&&(e._widthStyle=!0),e.minHeight&&this._differs(n._minHeightStyle,n._minHeightStyle="string"==typeof(r=n.minHeight)?"min-height: "+r+";":"")&&(e._minHeightStyle=!0)},(t=y).VERSION="4.0.0",t.defaultStack={dir1:"down",dir2:"left",firstpos1:25,firstpos2:25,spacing1:36,spacing2:36,push:"bottom",context:window&&document.body},t.defaults={title:!1,titleTrusted:!1,text:!1,textTrusted:!1,styling:"brighttheme",icons:"brighttheme",addClass:"",cornerClass:"",autoDisplay:!0,width:"360px",minHeight:"16px",type:"notice",icon:!0,animation:"fade",animateSpeed:"normal",shadow:!0,hide:!0,delay:8e3,mouseReset:!0,remove:!0,destroy:!0,stack:t.defaultStack,modules:{}},t.notices=[],t.modules={},t.modulesPrependContainer=[],t.modulesAppendContainer=[],t.alert=function(e){return new t(o(e))},t.notice=function(e){return new t(o(e,"notice"))},t.info=function(e){return new t(o(e,"info"))},t.success=function(e){return new t(o(e,"success"))},t.error=function(e){return new t(o(e,"error"))},t.removeAll=function(){t.closeAll()},t.closeAll=function(){for(var e=0;e<t.notices.length;e++)t.notices[e].close&&t.notices[e].close(!1)},t.removeStack=function(e){t.closeStack(e)},t.closeStack=function(e){if(!1!==e)for(var n=0;n<t.notices.length;n++)t.notices[n].close&&t.notices[n].get().stack===e&&t.notices[n].close(!1)},t.positionAll=function(){if(e&&clearTimeout(e),e=null,t.notices.length>0){for(var n=0;n<t.notices.length;n++){var o=t.notices[n].get().stack;o&&(o.overlay&&i(o),o.nextpos1=o.firstpos1,o.nextpos2=o.firstpos2,o.addpos2=0)}for(var s=0;s<t.notices.length;s++)t.notices[s].position()}else delete t.defaultStack.nextpos1,delete t.defaultStack.nextpos2},t.styling={brighttheme:{container:"brighttheme",notice:"brighttheme-notice",info:"brighttheme-info",success:"brighttheme-success",error:"brighttheme-error"},bootstrap3:{container:"alert",notice:"alert-warning",info:"alert-info",success:"alert-success",error:"alert-danger",icon:"ui-pnotify-icon-bs3"},bootstrap4:{container:"alert",notice:"alert-warning",info:"alert-info",success:"alert-success",error:"alert-danger",icon:"ui-pnotify-icon-bs4",title:"ui-pnotify-title-bs4"}},t.icons={brighttheme:{notice:"brighttheme-icon-notice",info:"brighttheme-icon-info",success:"brighttheme-icon-success",error:"brighttheme-icon-error"},bootstrap3:{notice:"glyphicon glyphicon-exclamation-sign",info:"glyphicon glyphicon-info-sign",success:"glyphicon glyphicon-ok-sign",error:"glyphicon glyphicon-warning-sign"},fontawesome4:{notice:"fa fa-exclamation-circle",info:"fa fa-info-circle",success:"fa fa-check-circle",error:"fa fa-exclamation-triangle"},fontawesome5:{notice:"fas fa-exclamation-circle",info:"fas fa-info-circle",success:"fas fa-check-circle",error:"fas fa-exclamation-triangle"}},window&&document.body?n():document.addEventListener("DOMContentLoaded",n),y});_extends=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var n=arguments[e];for(var i in n)Object.prototype.hasOwnProperty.call(n,i)&&(t[i]=n[i])}return t},_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t};!function(t,e){"object"===("undefined"==typeof exports?"undefined":_typeof(exports))&&"undefined"!=typeof module?module.exports=e(require("./PNotify")):"function"==typeof define&&define.amd?define("PNotifyButtons",["./PNotify"],e):t.PNotifyButtons=e(PNotify)}(this,function(t){"use strict";t=t&&t.__esModule?t.default:t;var e;function n(t,e){var n,s,r=e._showCloser&&i(t,e),a=e._showSticker&&o(t,e);return{c:function(){var t;r&&r.c(),t="\n",n=document.createTextNode(t),a&&a.c(),s=document.createComment("")},m:function(t,e){r&&r.m(t,e),c(t,n,e),a&&a.m(t,e),c(t,s,e)},p:function(e,c){c._showCloser?r?r.p(e,c):((r=i(t,c)).c(),r.m(n.parentNode,n)):r&&(r.d(1),r=null),c._showSticker?a?a.p(e,c):((a=o(t,c)).c(),a.m(s.parentNode,s)):a&&(a.d(1),a=null)},d:function(t){r&&r.d(t),t&&l(n),a&&a.d(t),t&&l(s)}}}function i(t,e){var n,i,o,s;function p(e){t.handleCloserClick()}return{c:function(){n=r("div"),(i=r("span")).className=e._closerClass+" svelte-1yjle82",u(n,"click",p),n.className=o="ui-pnotify-closer "+(!e.closerHover||e._mouseIsIn?"":"ui-pnotify-buttons-hidden")+" svelte-1yjle82",f(n,"role","button"),n.tabIndex="0",n.title=s=e.labels.close},m:function(t,e){c(t,n,e),a(n,i)},p:function(t,e){t._closerClass&&(i.className=e._closerClass+" svelte-1yjle82"),(t.closerHover||t._mouseIsIn)&&o!==(o="ui-pnotify-closer "+(!e.closerHover||e._mouseIsIn?"":"ui-pnotify-buttons-hidden")+" svelte-1yjle82")&&(n.className=o),t.labels&&s!==(s=e.labels.close)&&(n.title=s)},d:function(t){t&&l(n),d(n,"click",p)}}}function o(t,e){var n,i,o,s,p,h;function m(e){t.handleStickerClick()}return{c:function(){n=r("div"),(i=r("span")).className=o=(e._options.hide?e._pinUpClass:e._pinDownClass)+" svelte-1yjle82",u(n,"click",m),n.className=s="ui-pnotify-sticker "+(!e.stickerHover||e._mouseIsIn?"":"ui-pnotify-buttons-hidden")+" svelte-1yjle82",f(n,"role","button"),f(n,"aria-pressed",p=e._options.hide),n.tabIndex="0",n.title=h=e._options.hide?e.labels.stick:e.labels.unstick},m:function(t,e){c(t,n,e),a(n,i)},p:function(t,e){(t._options||t._pinUpClass||t._pinDownClass)&&o!==(o=(e._options.hide?e._pinUpClass:e._pinDownClass)+" svelte-1yjle82")&&(i.className=o),(t.stickerHover||t._mouseIsIn)&&s!==(s="ui-pnotify-sticker "+(!e.stickerHover||e._mouseIsIn?"":"ui-pnotify-buttons-hidden")+" svelte-1yjle82")&&(n.className=s),t._options&&p!==(p=e._options.hide)&&f(n,"aria-pressed",p),(t._options||t.labels)&&h!==(h=e._options.hide?e.labels.stick:e.labels.unstick)&&(n.title=h)},d:function(t){t&&l(n),d(n,"click",m)}}}function s(e){var i,o=this;!function(t,e){t._handlers=m(),t._slots=m(),t._bind=e._bind,t._staged={},t.options=e,t.root=e.root||t,t.store=e.store||t.root.store,e.root||(t._beforecreate=[],t._oncreate=[],t._aftercreate=[])}(this,e),this._state=p(_extends({_notice:null,_options:{},_mouseIsIn:!1},t.modules.Buttons.defaults),e.data),this._recompute({sticker:1,_notice:1,closer:1,classes:1},this._state),this._intro=!0,document.getElementById("svelte-1yjle82-style")||((i=r("style")).id="svelte-1yjle82-style",i.textContent=".ui-pnotify-closer.svelte-1yjle82,.ui-pnotify-sticker.svelte-1yjle82{float:right;margin-left:.5em;cursor:pointer}[dir=rtl] .ui-pnotify-closer.svelte-1yjle82,[dir=rtl] .ui-pnotify-sticker.svelte-1yjle82{float:left;margin-right:.5em;margin-left:0}.ui-pnotify-buttons-hidden.svelte-1yjle82{visibility:hidden}",a(document.head,i)),this._fragment=n(this,this._state),this.root._oncreate.push(function(){(function(){this.fire("init",{module:this})}).call(o),o.fire("update",{changed:function(t,e){for(var n in e)t[n]=1;return t}({},o._state),current:o._state})}),e.target&&(this._fragment.c(),this._mount(e.target,e.anchor),h(this))}function r(t){return document.createElement(t)}function a(t,e){t.appendChild(e)}function c(t,e,n){t.insertBefore(e,n)}function l(t){t.parentNode.removeChild(t)}function u(t,e,n,i){t.addEventListener(e,n,i)}function f(t,e,n){null==n?t.removeAttribute(e):t.setAttribute(e,n)}function d(t,e,n,i){t.removeEventListener(e,n,i)}function p(t,e){for(var n in e)t[n]=e[n];return t}function h(t){t._lock=!0,g(t._beforecreate),g(t._oncreate),g(t._aftercreate),t._lock=!1}function m(){return Object.create(null)}function g(t){for(;t&&t.length;)t.shift()()}function y(){}return p(s.prototype,{destroy:function(t){this.destroy=y,this.fire("destroy"),this.set=y,this._fragment.d(!1!==t),this._fragment=null,this._state={}},get:function(){return this._state},fire:function(t,e){var n=t in this._handlers&&this._handlers[t].slice();if(!n)return;for(var i=0;i<n.length;i+=1){var o=n[i];if(!o.__calling)try{o.__calling=!0,o.call(this,e)}finally{o.__calling=!1}}},on:function(t,e){var n=this._handlers[t]||(this._handlers[t]=[]);return n.push(e),{cancel:function(){var t=n.indexOf(e);~t&&n.splice(t,1)}}},set:function(t){if(this._set(p({},t)),this.root._lock)return;h(this.root)},_set:function(t){var e=this._state,n={},i=!1;for(var o in t=p(this._staged,t),this._staged={},t)this._differs(t[o],e[o])&&(n[o]=i=!0);if(!i)return;this._state=p(p({},e),t),this._recompute(n,this._state),this._bind&&this._bind(n,this._state);this._fragment&&(this.fire("state",{changed:n,current:this._state,previous:e}),this._fragment.p(n,this._state),this.fire("update",{changed:n,current:this._state,previous:e}))},_stage:function(t){p(this._staged,t)},_mount:function(t,e){this._fragment[this._fragment.i?"i":"m"](t,e||null)},_differs:function(t,e){return t!=t?e==e:t!==e||t&&"object"===(void 0===t?"undefined":_typeof(t))||"function"==typeof t}}),p(s.prototype,{initModule:function(t){var e=this;this.set(t);var n=this.get()._notice;n.on("mouseenter",function(){return e.set({_mouseIsIn:!0})}),n.on("mouseleave",function(){return e.set({_mouseIsIn:!1})}),n.on("state",function(t){var n=t.changed,i=t.current;if(n.hide&&e.get().sticker){var o=i.hide?e.get().classes.pinUp:e.get().classes.pinDown;("fontawesome5"===e.get()._notice.get().icons||"string"==typeof o&&o.match(/(^| )fa[srlb]($| )/))&&(e.set({sticker:!1}),e.set({sticker:!0}))}})},handleStickerClick:function(){var t=this.get()._notice;t.update({hide:!t.get().hide})},handleCloserClick:function(){this.get()._notice.close(!1),this.set({_mouseIsIn:!1})}}),s.prototype._recompute=function(t,e){var n,i,o;(t.sticker||t._notice)&&this._differs(e._showSticker,e._showSticker=(i=(n=e).sticker,o=n._notice,i&&!(o&&o.refs.elem.classList.contains("nonblock"))))&&(t._showSticker=!0),(t.closer||t._notice)&&this._differs(e._showCloser,e._showCloser=function(t){var e=t.closer,n=t._notice;return e&&!(n&&n.refs.elem.classList.contains("nonblock"))}(e))&&(t._showCloser=!0),(t.classes||t._notice)&&(this._differs(e._pinUpClass,e._pinUpClass=function(t){var e=t.classes,n=t._notice;return n?null===e.pinUp?n.get()._icons.pinUp:e.pinUp:""}(e))&&(t._pinUpClass=!0),this._differs(e._pinDownClass,e._pinDownClass=function(t){var e=t.classes,n=t._notice;return n?null===e.pinDown?n.get()._icons.pinDown:e.pinDown:""}(e))&&(t._pinDownClass=!0),this._differs(e._closerClass,e._closerClass=function(t){var e=t.classes,n=t._notice;return n?null===e.closer?n.get()._icons.closer:e.closer:""}(e))&&(t._closerClass=!0))},(e=s).key="Buttons",e.defaults={closer:!0,closerHover:!0,sticker:!0,stickerHover:!0,labels:{close:"Close",stick:"Stick",unstick:"Unstick"},classes:{closer:null,pinUp:null,pinDown:null}},t.modules.Buttons=e,t.modulesPrependContainer.push(e),_extends(t.icons.brighttheme,{closer:"brighttheme-icon-closer",pinUp:"brighttheme-icon-sticker",pinDown:"brighttheme-icon-sticker brighttheme-icon-stuck"}),_extends(t.icons.bootstrap3,{closer:"glyphicon glyphicon-remove",pinUp:"glyphicon glyphicon-pause",pinDown:"glyphicon glyphicon-play"}),_extends(t.icons.fontawesome4,{closer:"fa fa-times",pinUp:"fa fa-pause",pinDown:"fa fa-play"}),_extends(t.icons.fontawesome5,{closer:"fas fa-times",pinUp:"fas fa-pause",pinDown:"fas fa-play"}),s});_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t};!function(t,e){"object"===("undefined"==typeof exports?"undefined":_typeof(exports))&&"undefined"!=typeof module?module.exports=e(require("./PNotify")):"function"==typeof define&&define.amd?define("PNotifyCallbacks",["./PNotify"],e):t.PNotifyCallbacks=e(PNotify)}(this,function(t){"use strict";var e=(t=t&&t.__esModule?t.default:t).prototype.open,n=t.prototype.close,i=function(t,e,n){var i=t?t.get().modules:e.modules,o=i&&i.Callbacks?i.Callbacks:{};return o[n]?o[n]:function(){return!0}};function o(t){!function(t,e){t._handlers=a(),t._slots=a(),t._bind=e._bind,t._staged={},t.options=e,t.root=e.root||t,t.store=e.store||t.root.store,e.root||(t._beforecreate=[],t._oncreate=[],t._aftercreate=[])}(this,t),this._state=r({},t.data),this._intro=!0,this._fragment=(this._state,{c:s,m:s,p:s,d:s}),t.target&&(this._fragment.c(),this._mount(t.target,t.anchor))}function s(){}function r(t,e){for(var n in e)t[n]=e[n];return t}function a(){return Object.create(null)}function c(t){for(;t&&t.length;)t.shift()()}return t.prototype.open=function(){if(!1!==i(this,null,"beforeOpen")(this)){for(var t=arguments.length,n=Array(t),o=0;o<t;o++)n[o]=arguments[o];e.apply(this,n),i(this,null,"afterOpen")(this)}},t.prototype.close=function(t){if(!1!==i(this,null,"beforeClose")(this,t)){for(var e=arguments.length,o=Array(e>1?e-1:0),s=1;s<e;s++)o[s-1]=arguments[s];n.apply(this,[t].concat(o)),i(this,null,"afterClose")(this,t)}},r(o.prototype,{destroy:function(t){this.destroy=s,this.fire("destroy"),this.set=s,this._fragment.d(!1!==t),this._fragment=null,this._state={}},get:function(){return this._state},fire:function(t,e){var n=t in this._handlers&&this._handlers[t].slice();if(!n)return;for(var i=0;i<n.length;i+=1){var o=n[i];if(!o.__calling)try{o.__calling=!0,o.call(this,e)}finally{o.__calling=!1}}},on:function(t,e){var n=this._handlers[t]||(this._handlers[t]=[]);return n.push(e),{cancel:function(){var t=n.indexOf(e);~t&&n.splice(t,1)}}},set:function(t){if(this._set(r({},t)),this.root._lock)return;e=this.root,e._lock=!0,c(e._beforecreate),c(e._oncreate),c(e._aftercreate),e._lock=!1;var e},_set:function(t){var e=this._state,n={},i=!1;for(var o in t=r(this._staged,t),this._staged={},t)this._differs(t[o],e[o])&&(n[o]=i=!0);if(!i)return;this._state=r(r({},e),t),this._recompute(n,this._state),this._bind&&this._bind(n,this._state);this._fragment&&(this.fire("state",{changed:n,current:this._state,previous:e}),this._fragment.p(n,this._state),this.fire("update",{changed:n,current:this._state,previous:e}))},_stage:function(t){r(this._staged,t)},_mount:function(t,e){this._fragment[this._fragment.i?"i":"m"](t,e||null)},_differs:function(t,e){return t!=t?e==e:t!==e||t&&"object"===(void 0===t?"undefined":_typeof(t))||"function"==typeof t}}),o.prototype._recompute=s,function(e){e.key="Callbacks",e.getCallbacks=i;var n=t.alert,o=t.notice,s=t.info,r=t.success,a=t.error,c=function(t,e){i(null,e,"beforeInit")(e);var n=t(e);return i(n,null,"afterInit")(n),n};t.alert=function(t){return c(n,t)},t.notice=function(t){return c(o,t)},t.info=function(t){return c(s,t)},t.success=function(t){return c(r,t)},t.error=function(t){return c(a,t)},t.modules.Callbacks=e}(o),o});_extends=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var n=arguments[e];for(var i in n)Object.prototype.hasOwnProperty.call(n,i)&&(t[i]=n[i])}return t},_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t};!function(t,e){"object"===("undefined"==typeof exports?"undefined":_typeof(exports))&&"undefined"!=typeof module?module.exports=e(require("./PNotify")):"function"==typeof define&&define.amd?define("PNotifyDesktop",["./PNotify"],e):t.PNotifyDesktop=e(PNotify)}(this,function(t){"use strict";t=t&&t.__esModule?t.default:t;var e=void 0,n=window.Notification,i=function(t,e,o,s){return(i="Notification"in window?function(t,e,i,o){var s=new n(t,e);return"NotificationEvent"in window?(s.addEventListener("notificationclick",i),s.addEventListener("close",o)):"addEventListener"in s?(s.addEventListener("click",i),s.addEventListener("close",o)):(s.onclick=i,s.onclose=o),s}:"mozNotification"in navigator?function(t,e,n,i){var o=navigator.mozNotification.createNotification(t,e.body,e.icon).show();return o.onclick=n,o.onclose=i,o}:"webkitNotifications"in window?function(t,e,n,i){var o=window.webkitNotifications.createNotification(e.icon,t,e.body);return o.onclick=n,o.onclose=i,o}:function(t,e,n,i){return null})(t,e,o,s)};var o,s={initModule:function(n){var i=this;this.set(n);var o=this.get()._notice;this.set({_oldAnimation:o.get().animation}),o.on("state",function(t){var n=t.changed,s=t.current,r=t.previous;n.animation&&(void 0===r.animation||"none"!==s.animation||"none"===r.animation&&s.animation!==i.get()._oldAnimation)&&i.set({_oldAnimation:s.animation}),n._animatingClass&&(""===s._animatingClass||0!==e&&i.get().fallback||!i.get().desktop||o.set({_animatingClass:""}))}),this.get().desktop&&(0===(e=t.modules.Desktop.checkPermission())?(o.set({animation:"none"}),o.addModuleClass("ui-pnotify-desktop-hide"),this.genNotice()):this.get().fallback||o.set({autoDisplay:!1}))},update:function(){var t=this.get()._notice;if(0!==e&&this.get().fallback||!this.get().desktop)return t.set({animation:this.get()._oldAnimation}),void t.removeModuleClass("ui-pnotify-desktop-hide");t.set({animation:"none"}),t.addModuleClass("ui-pnotify-desktop-hide"),this.genNotice()},beforeOpen:function(){if(this.get().desktop&&0!==e&&t.modules.Desktop.permission(),(0===e||!this.get().fallback)&&this.get().desktop){var n=this.get()._desktop;n&&"show"in n&&(this.get()._notice.set({_moduleIsNoticeOpen:!0}),n.show())}},beforeClose:function(){if((0===e||!this.get().fallback)&&this.get().desktop){var t=this.get()._desktop;t&&"close"in t&&(t.close(),this.get()._notice.set({_moduleIsNoticeOpen:!1}))}},genNotice:function(){var t=this.get(),e=t._notice,n=t.icon;if(null===n)switch(e.get().type){case"error":this.set({_icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQg7e6HvQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABr0lEQVRYw8WXu0oDQRSGv7hRSFYrLTTWKihaqUgUJO+gphBLL1jYpPSCVcAggpWthYhC7Ows9An0IbSPkMRCw8ZmFuI6yczs9cAPuzNz5v92brtrESxGARtokkCcAg2hk7jNl4G2R/m4zFPAiwTgWdRFHnmJuaulOAAaPQDqUZvv9DB3tR0lwIcGwHtU5uca5q4qYZvngJbHpAZ8CtU8dS1gLEyAisegBGTFKWiL65KnzVlY5uOSId6VtNuTtMupOu/TAHiQlNmSskHNXCOAGWBeUp7VhFoApoMAXAOWJoCszBJ9+ALY6vL0JiPgjsKmKUAaOOoBZwIAcNxlJLsCrAOTIQJMAWu62y4LOIqT7lGS96TIcYCMDkBZ46h1gB+PHI28ssq8X/G6DaqG8Piz2DrjVjGXbtSBy46F5QAHwJAizwZugKKscs7gSaqS/KpB/qxsFxwafhf6Odb/eblJi8BGwJdW26BtURxQpMU83hmaDQsNiPtvYMSwj3tgAqDgYzU7wJdHjo9+CgBvEW47lV5Tgj5DMtG0xIfESkIAF+522gdWxTzGEX3i9+6KpOMXF5UBt0NKJCAAAAAASUVORK5CYII="});break;case"success":this.set({_icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQPRj+65AAAAdBJREFUWMPtlzsvRFEQx3+7HmEjoiYKolVJJDRqnS8ggvVIVEQhCIUsEYJGCEH2E4h4FPREaLTbEo1IEJXHrmY2GTf33nPuY7ud5OTenTMz//89Z86ZWShLWf5LB3AOfACFiOMF2AkC3qOc88BXxFEAxlX8ftGdaNCEen8H6oFHYBR4FocwkpTngzzHgF01fwL0aYcp9fVtMW/rsMcWXWijK1Hexgye9smRT6CxaHgjytMYwccNSXqoja9FeVbiZS+OVaeDiUBLAPAJA/i2m5MXgRSQk7llC/DBMOBeBGqAe0eAjQhfvurH3EmgQk6EW6CVEHt+ZFo6J4EU8OoTcF35jhnAl2wSx20LFgyB1yyOWtY2c72ScMAAkPeZy6g4zUBdGAIAcyEq4Z7y7xbdTFgCACMBwPVJqVDHeNqvaplkH5i0sNuUwmaNkQxww20ZSOy7gFvX7SAk0i76jPQQlJoAwAEwq35ngfmwVatSdUMArZZ+K9JQ1Bp6iGqgSt7f/AIOqSzujLEn6AV+JG6zm4HuCZ+AJuAbWAQu5aIJu7JDck0ngDugC/j1c2qPqR13jpxuvWyS8liY/kQcean/lX6ACQ99DdAQYe+Lf0zylMUgf7qDKgzv284QAAAAAElFTkSuQmCC"});break;case"info":this.set({_icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQ09zRTwAAAAdxJREFUWMPtl88rRFEUxz8zBolRCgsrpOym8TMSO2WplLKwUrKi/B0W7JSFmhVLNlhSlLKx8CtRGpEsJpofpZk3Nkc9b968e++8mdlw6vTeu/edc773nl/3wl+ngOH/zUAf0AN0AmEgB7wCD8AtcFMJoM3ADpAHLHk62RIwL8B0uQwHgXVRnDfkS2DSj/EW4K0Ew05eLMV4O/CuUJwEUvJUgdgwMd4IpBUKl13kVG6aL+ZjJ20DDQqQXy5jKYVMDBhVrb5f069LLrKfGnInqh040HRTvsTAHgei9oGQ7X0YaNNUNCdFKChgQvKtQ1vAkNvEahlSToez9oXad2BCA30ceHZxRxMQMShuvZLmv+hOA32/h+KUwS7MugVhqwb6Go+5nEEwht0ABDUEzyXdFsrQYwqMJjTbdxio9Qkg6QbgvkpnkLw0uQIAZ1UCYNkXawdw4qPCmVBcuADAMZCpAoCVYr3AKtYyHZSWauakjMx50TWwrzJw6lFARjQOt3se8jM6W9TloSCqIb9bRHbN5Fg+KkEZcow/Ak+KFBsD6h3jR8CUabAMlqn7xfxEbAdwWKLhhO3sGPCbOsNSvSyF0Z/5TaCuEleziLhmAOiWG1NWrmZXwIVU1A/+SZO+AcgLC4wt0zD3AAAAAElFTkSuQmCC"});break;case"notice":default:this.set({_icon:"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATM4scOJLAAAAcxJREFUWMPtljtLA0EQx3+J0QRfnYqCiCA+MERBrIwgFtoFbMTOR61i5QcQBdEihZWNoEWwsNAvkMJeBLHRQtHC0iIP4utOmw2cx97d7l2SRgcGbufmv/Pf2dmdhb8uIR+YJqAPaBff30AeeAHuxLgqMgRkgS/AAEybGuLfEdBcycCTwKVYmY5mgO6gwdd8BLaqAST9Bs8EDG7VTd3gex4TbgEjwKjQOHDugZlRDb7sMZEJpCS4bYVMJOygsG1cB+wqHN0Gib1RYXFpLwL74nx7Sb3EFlXATQNjTgRagA3FbZIRiCliT5wITGgUaRACA0CPjMC4xtUcDUAgDAzLCCQ0MhALQCAE9MoIdGkQCJIBgE4ZgWiNMvDL10qgUMMMFGQEnjQmkLXbVg38s8y4qtFcTCAnHiJ5oKiJnSoHjVgIXAmHkGIl5yy+YcWruIy9dvqpupIDCfZWEXvh1gsWFVfxIbG9a3RbRwJnYiuqJYfAqxsBgBWFiQyJzfTAlIB1uzEicbwBFoBTl8lSwINoSuXKjrv4F4FBh61zlKUKvgn7/e5ZEngMEDgLdFSieHaAT42LpgTMVbqC24B54Bi4twV9E6cnDcw6PFj+RSo/l6rlSlldhx4AAAAASUVORK5CYII="})}else!1===n?this.set({_icon:null}):this.set({_icon:n});var o=this.get().tag;this.get()._tag&&null===o||this.set({_tag:null===o?"PNotify-"+Math.round(1e6*Math.random()):o});var s={body:this.get().text||e.get().text,tag:this.get()._tag};e.get().hide||(s.requireInteraction=!0),null!==this.get()._icon&&(s.icon=this.get()._icon),Object.apply(s,this.get().options);var r=i(this.get().title||e.get().title,s,function(){e.fire("click",{target:r})},function(){e.close()});e.set({_moduleIsNoticeOpen:!0}),this.set({_desktop:r}),!("close"in r)&&"cancel"in r&&(r.close=function(){r.cancel()})}};function r(){var t,e,n,i=(t="style",document.createElement(t));i.id="svelte-xbgnx4-style",i.textContent="[ui-pnotify].ui-pnotify-desktop-hide.ui-pnotify{left:-10000px !important;display:none !important}",e=document.head,n=i,e.appendChild(n)}function a(e){!function(t,e){t._handlers=u(),t._slots=u(),t._bind=e._bind,t._staged={},t.options=e,t.root=e.root||t,t.store=e.store||t.root.store,e.root||(t._beforecreate=[],t._oncreate=[],t._aftercreate=[])}(this,e),this._state=l(_extends({_notice:null,_options:{}},t.modules.Desktop.defaults),e.data),this._intro=!0,document.getElementById("svelte-xbgnx4-style")||r(),this._fragment=(this._state,{c,m:c,p:c,d:c}),e.target&&(this._fragment.c(),this._mount(e.target,e.anchor))}function c(){}function l(t,e){for(var n in e)t[n]=e[n];return t}function u(){return Object.create(null)}function f(t){for(;t&&t.length;)t.shift()()}return l(a.prototype,{destroy:function(t){this.destroy=c,this.fire("destroy"),this.set=c,this._fragment.d(!1!==t),this._fragment=null,this._state={}},get:function(){return this._state},fire:function(t,e){var n=t in this._handlers&&this._handlers[t].slice();if(!n)return;for(var i=0;i<n.length;i+=1){var o=n[i];if(!o.__calling)try{o.__calling=!0,o.call(this,e)}finally{o.__calling=!1}}},on:function(t,e){var n=this._handlers[t]||(this._handlers[t]=[]);return n.push(e),{cancel:function(){var t=n.indexOf(e);~t&&n.splice(t,1)}}},set:function(t){if(this._set(l({},t)),this.root._lock)return;e=this.root,e._lock=!0,f(e._beforecreate),f(e._oncreate),f(e._aftercreate),e._lock=!1;var e},_set:function(t){var e=this._state,n={},i=!1;for(var o in t=l(this._staged,t),this._staged={},t)this._differs(t[o],e[o])&&(n[o]=i=!0);if(!i)return;this._state=l(l({},e),t),this._recompute(n,this._state),this._bind&&this._bind(n,this._state);this._fragment&&(this.fire("state",{changed:n,current:this._state,previous:e}),this._fragment.p(n,this._state),this.fire("update",{changed:n,current:this._state,previous:e}))},_stage:function(t){l(this._staged,t)},_mount:function(t,e){this._fragment[this._fragment.i?"i":"m"](t,e||null)},_differs:function(t,e){return t!=t?e==e:t!==e||t&&"object"===(void 0===t?"undefined":_typeof(t))||"function"==typeof t}}),l(a.prototype,s),a.prototype._recompute=c,(o=a).key="Desktop",o.defaults={desktop:!1,fallback:!0,icon:null,tag:null,title:null,text:null,options:{}},o.init=function(t){return new o({target:document.body})},o.permission=function(){void 0!==n&&"requestPermission"in n?n.requestPermission():"webkitNotifications"in window&&window.webkitNotifications.requestPermission()},o.checkPermission=function(){return void 0!==n&&"permission"in n?"granted"===n.permission?0:1:"webkitNotifications"in window&&0==window.webkitNotifications.checkPermission()?0:1},e=o.checkPermission(),t.modules.Desktop=o,a}),(t=>{window.NonBlockJs={NonBlock:t},document.body?window.NonBlockJs.nonBlock=new t(document.body):document.addEventListener("DOMContentLoaded",()=>{window.NonBlockJs.nonBlock=new t(document.body)})})((()=>{return class NonBlock{constructor(t,e){this.root=t;const n=window.getComputedStyle(document.body);this.pointerEventsSupport=n.pointerEvents&&"auto"===n.pointerEvents,this.regexOn=/^on/,this.regexMouseEvents=/^(dbl)?click$|^mouse(move|down|up|over|out|enter|leave)$|^contextmenu$/,this.regexUiEvents=/^(focus|blur|select|change|reset)$|^key(press|down|up)$/,this.regexHtmlEvents=/^(scroll|resize|(un)?load|abort|error)$/,this.useEventConstructors=!0;try{new MouseEvent("click")}catch(t){this.useEventConstructors=!1}this.mode=void 0===e?this.pointerEventsSupport?"PointerEvents":"EventForwarding":e,this["init"+this.mode]&&this["init"+this.mode]()}initPointerEvents(){this.addCSS(".nonblock{transition:opacity .1s ease; pointer-events: none;}.nonblock:hover,.nonblock-hover{opacity:.1 !important;}"),this.onmousemove=(t=>{const e=document.querySelectorAll(".nonblock");for(let n of e){const e=n.getBoundingClientRect();t.clientX>=e.left&&t.clientX<=e.right&&t.clientY>=e.top&&t.clientY<=e.bottom?n.classList.contains("nonblock-hover")?this.isSimulateMouse(n)&&t.isTrusted&&this.domEvent(n,"onmousemove",t,!0):(n.classList.add("nonblock-hover"),this.isSimulateMouse(n)&&t.isTrusted&&(this.domEvent(n,"onmouseenter",t,!1),this.domEvent(n,"onmouseover",t,!0))):n.classList.contains("nonblock-hover")&&(this.isSimulateMouse(n)&&t.isTrusted&&(this.domEvent(n,"onmouseout",t,!0),this.domEvent(n,"onmouseleave",t,!1)),n.classList.remove("nonblock-hover"))}}),this.root.addEventListener("mousemove",this.onmousemove)}initEventForwarding(){this.addCSS(".nonblock{transition:opacity .1s ease;}\n.nonblock:hover{opacity:.1 !important;}\n.nonblock-hide{position:absolute !important;left:-10000000px !important;right:10000000px !important;}\n.nonblock-cursor-auto{cursor:auto !important;}\n.nonblock-cursor-default{cursor:default !important;}\n.nonblock-cursor-none{cursor:none !important;}\n.nonblock-cursor-context-menu{cursor:context-menu !important;}\n.nonblock-cursor-help{cursor:help !important;}\n.nonblock-cursor-pointer{cursor:pointer !important;}\n.nonblock-cursor-progress{cursor:progress !important;}\n.nonblock-cursor-wait{cursor:wait !important;}\n.nonblock-cursor-cell{cursor:cell !important;}\n.nonblock-cursor-crosshair{cursor:crosshair !important;}\n.nonblock-cursor-text{cursor:text !important;}\n.nonblock-cursor-vertical-text{cursor:vertical-text !important;}\n.nonblock-cursor-alias{cursor:alias !important;}\n.nonblock-cursor-copy{cursor:copy !important;}\n.nonblock-cursor-move{cursor:move !important;}\n.nonblock-cursor-no-drop{cursor:no-drop !important;}\n.nonblock-cursor-not-allowed{cursor:not-allowed !important;}\n.nonblock-cursor-all-scroll{cursor:all-scroll !important;}\n.nonblock-cursor-col-resize{cursor:col-resize !important;}\n.nonblock-cursor-row-resize{cursor:row-resize !important;}\n.nonblock-cursor-n-resize{cursor:n-resize !important;}\n.nonblock-cursor-e-resize{cursor:e-resize !important;}\n.nonblock-cursor-s-resize{cursor:s-resize !important;}\n.nonblock-cursor-w-resize{cursor:w-resize !important;}\n.nonblock-cursor-ne-resize{cursor:ne-resize !important;}\n.nonblock-cursor-nw-resize{cursor:nw-resize !important;}\n.nonblock-cursor-se-resize{cursor:se-resize !important;}\n.nonblock-cursor-sw-resize{cursor:sw-resize !important;}\n.nonblock-cursor-ew-resize{cursor:ew-resize !important;}\n.nonblock-cursor-ns-resize{cursor:ns-resize !important;}\n.nonblock-cursor-nesw-resize{cursor:nesw-resize !important;}\n.nonblock-cursor-nwse-resize{cursor:nwse-resize !important;}\n.nonblock-cursor-zoom-in{cursor:zoom-in !important;}\n.nonblock-cursor-zoom-out{cursor:zoom-out !important;}\n.nonblock-cursor-grab{cursor:grab !important;}\n.nonblock-cursor-grabbing{cursor:grabbing !important;}"),this.nonBlockLastElem=null,this.isOverTextNode=!1,this.selectingText=!1,this.onmouseenter=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonBlockLastElem=!1,this.isPropagating(e)||t.stopPropagation())}),this.onmouseleave=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.remCursor(e),this.nonBlockLastElem=null,this.selectingText=!1,this.isPropagating(e)||t.stopPropagation())}),this.onmouseover=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&!this.isPropagating(e)&&t.stopPropagation()}),this.onmouseout=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&!this.isPropagating(e)&&t.stopPropagation()}),this.onmousemove=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonblockPass(e,t,"onmousemove"),null===this.selectingText?(window.getSelection().removeAllRanges(),this.selectingText=!0):this.selectingText&&t.preventDefault(),this.isPropagating(e)||t.stopPropagation())}),this.onmousedown=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonblockPass(e,t,"onmousedown"),this.selectingText=null,this.isFocusable(e)||t.preventDefault(),this.isPropagating(e)&&this.isActionPropagating(e)||t.stopPropagation())}),this.onmouseup=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonblockPass(e,t,"onmouseup"),null===this.selectingText&&window.getSelection().removeAllRanges(),this.selectingText=!1,this.isPropagating(e)&&this.isActionPropagating(e)||t.stopPropagation())}),this.onclick=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonblockPass(e,t,"onclick"),this.isPropagating(e)&&this.isActionPropagating(e)||t.stopPropagation())}),this.ondblclick=(t=>{let e;t.isTrusted&&(e=this.getNonBlocking(t.target))&&(this.nonblockPass(e,t,"ondblclick"),this.isPropagating(e)&&this.isActionPropagating(e)||t.stopPropagation())}),this.root.addEventListener("mouseenter",this.onmouseenter,!0),this.root.addEventListener("mouseleave",this.onmouseleave,!0),this.root.addEventListener("mouseover",this.onmouseover,!0),this.root.addEventListener("mouseout",this.onmouseout,!0),this.root.addEventListener("mousemove",this.onmousemove,!0),this.root.addEventListener("mousedown",this.onmousedown,!0),this.root.addEventListener("mouseup",this.onmouseup,!0),this.root.addEventListener("click",this.onclick,!0),this.root.addEventListener("dblclick",this.ondblclick,!0)}destroy(){for(let t of["mouseenter","mouseleave","mouseover","mouseout","mousemove","mousedown","mouseup","click","dblclick"])this["on"+t]&&(this.root.removeEventListener(t,this["on"+t],!0),delete this["on"+t]);this.styling.parentNode.removeChild(this.styling),delete this.styling}addCSS(t){this.styling=document.createElement("style"),this.styling.setAttribute("type","text/css"),this.styling.styleSheet?this.styling.styleSheet.cssText=t:this.styling.appendChild(document.createTextNode(t)),document.getElementsByTagName("head")[0].appendChild(this.styling)}domEvent(t,e,n,i){let o;if(e=e.toLowerCase(),this.useEventConstructors){if((e=e.replace(this.regexOn,"")).match(this.regexMouseEvents)?o=new MouseEvent(e,{screenX:n.screenX,screenY:n.screenY,clientX:n.clientX,clientY:n.clientY,ctrlKey:n.ctrlKey,shiftKey:n.shiftKey,altKey:n.altKey,metaKey:n.metaKey,button:n.button,buttons:n.buttons,relatedTarget:n.relatedTarget,region:n.region,detail:n.detail,view:n.view,bubbles:void 0===i?n.bubbles:i,cancelable:n.cancelable,composed:n.composed}):e.match(this.regexUiEvents)?o=new UIEvent(e,{detail:n.detail,view:n.view,bubbles:void 0===i?n.bubbles:i,cancelable:n.cancelable,composed:n.composed}):e.match(this.regexHtmlEvents)&&(o=new Event(e,{bubbles:void 0===i?n.bubbles:i,cancelable:n.cancelable,composed:n.composed})),!o)return;t.dispatchEvent(o)}else if(document.createEvent&&t.dispatchEvent){if((e=e.replace(this.regexOn,"")).match(this.regexMouseEvents)?(t.getBoundingClientRect(),(o=document.createEvent("MouseEvents")).initMouseEvent(e,void 0===i?n.bubbles:i,n.cancelable,n.view,n.detail,n.screenX,n.screenY,n.clientX,n.clientY,n.ctrlKey,n.altKey,n.shiftKey,n.metaKey,n.button,n.relatedTarget)):e.match(this.regexUiEvents)?(o=document.createEvent("UIEvents")).initUIEvent(e,void 0===i?n.bubbles:i,n.cancelable,n.view,n.detail):e.match(this.regexHtmlEvents)&&(o=document.createEvent("HTMLEvents")).initEvent(e,void 0===i?n.bubbles:i,n.cancelable),!o)return;t.dispatchEvent(o)}else e.match(this.regexOn)||(e="on"+e),o=document.createEventObject(n),t.fireEvent(e,o)}nonblockPass(t,e,n){t.classList.add("nonblock-hide");const i=document.elementFromPoint(e.clientX,e.clientY);let o,s,r,a,c;!1===this.nonBlockLastElem&&(this.nonBlockLastElem=i),document.caretPositionFromPoint?(s=(o=document.caretPositionFromPoint(e.clientX,e.clientY))?o.offsetNode:null,c=o?o.offset:null):document.caretRangeFromPoint&&(s=(o=document.caretRangeFromPoint(e.clientX,e.clientY))?o.endContainer:null,c=o?o.endOffset:null),o&&(r=o.startContainer.textContent.match(/^[\s\n]*/)[0],a=o.startContainer.textContent.replace(/[\s\n]+$/g,"")),t.classList.remove("nonblock-hide");let l=this.getCursor(i);if(this.isOverTextNode=!1,"auto"===l&&"A"===i.tagName?l="pointer":o&&(!r.length||c>r.length)&&c<a.length&&("auto"===l&&(l="text"),this.isOverTextNode=!0),o&&this.selectingText&&c>0){const t=window.getSelection();let e;0===t.rangeCount?(this.selectingText={originContainer:o.startContainer?o.startContainer:s,originOffset:c-1},e=document.createRange(),t.addRange(e)):e=t.getRangeAt(0),s===this.selectingText.originContainer&&c<this.selectingText.originOffset||s.compareDocumentPosition(this.selectingText.originContainer)&Node.DOCUMENT_POSITION_FOLLOWING?(e.setEnd(this.selectingText.originContainer,this.selectingText.originOffset),e.setStart(s,c)):(e.setStart(this.selectingText.originContainer,this.selectingText.originOffset),e.setEnd(s,c))}if(this.setCursor(t,"auto"!==l?l:"default"),!this.nonBlockLastElem||this.nonBlockLastElem!==i){if(this.nonBlockLastElem){const t=this.nonBlockLastElem;t.contains(i)||this.domEvent(t,"mouseleave",e,!1),this.domEvent(t,"mouseout",e,!0),i.contains(t)||this.domEvent(i,"mouseenter",e,!1)}else i.contains(t)||this.domEvent(i,"mouseenter",e,!1);this.domEvent(i,"mouseover",e,!0)}"onmousedown"===n&&(document.activeElement&&document.activeElement.blur(),i.focus({preventScroll:!0})),this.domEvent(i,n,e),this.nonBlockLastElem=i}getNonBlocking(t){let e=t;for(;e;){if(e.classList&&e.classList.contains("nonblock"))return e;e=e.parentNode}return!1}isPropagating(t){return!t.classList.contains("nonblock-stop-propagation")}isActionPropagating(t){return t.classList.contains("nonblock-allow-action-propagation")}isFocusable(t){return t.classList.contains("nonblock-allow-focus")}isSimulateMouse(t){return!t.classList.contains("nonblock-stop-mouse-simulation")}getCursor(t){return window.getComputedStyle(t).getPropertyValue("cursor")}setCursor(t,e){t.classList.contains("nonblock-cursor-"+e)||(this.remCursor(t),t.classList.add("nonblock-cursor-"+e))}remCursor(t){[...Object.keys(t.classList).map(e=>t.classList[e])].forEach(e=>{0===e.indexOf("nonblock-cursor-")&&t.classList.remove(e)})}}})()),define("NonBlock",function(){}),define("pnotify.loader",["PNotify","PNotifyButtons","PNotifyCallbacks","PNotifyDesktop","NonBlock"],t=>{"use strict";let e={bottomRight:{stack:{dir1:"up",dir2:"left",firstpos1:32,firstpos2:10,spacing1:5,spacing2:5,push:"bottom",context:document.body}},barBottom:{stack:{dir1:"up",firstpos1:32,spacing1:0,context:document.querySelector(".pf-site")},addclass:"stack-bar-bottom"}};return t.defaults.styling="bootstrap3",t.defaults.icons="fontawesome5",t.defaults.addClass="nonblock",t.defaults.delay=5e3,t.defaults.width="250px",t.defaults.animateSpeed="fast",t.defaults.stack=e.bottomRight.stack,t.modules.Desktop.defaults.icon="/public/img/notifications/logo.png",{showNotify:(n={},i={})=>{switch(i.desktop&&(n.modules={Desktop:Object.assign({},{desktop:!0},i.desktop)}),n.type){case"info":n.icon="fas fa-info fa-fw fa-lg";break;case"success":n.icon="fas fa-check fa-fw fa-lg";break;case"notice":case"warning":n.icon="fas fa-exclamation-triangle fa-fw fa-lg",n.type="notice";break;case"error":n.icon="fas fa-times fa-fw fa-lg";break;case"lock":n.icon="fas fa-lock fa-fw fa-lg",n.type="success";break;case"unlock":n.icon="fas fa-unlock fa-fw fa-lg",n.type="info";break;default:n.icon=!1}i.stack&&(n.stack=e[i.stack].stack,n.addClass=e[i.stack].addclass);let o=t.alert(n);"function"==typeof i.click&&(o.refs.elem.style.cursor="pointer",o.on("click",i.click))}}}),define("text",["module"],function(t){"use strict";var e,n,i,o,s,r=["Msxml2.XMLHTTP","Microsoft.XMLHTTP","Msxml2.XMLHTTP.4.0"],a=/^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,c=/<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,l="undefined"!=typeof location&&location.href,u=l&&location.protocol&&location.protocol.replace(/\:/,""),f=l&&location.hostname,d=l&&(location.port||void 0),p={},h=t.config&&t.config()||{};return e={version:"2.0.12",strip:function(t){if(t){var e=(t=t.replace(a,"")).match(c);e&&(t=e[1])}else t="";return t},jsEscape:function(t){return t.replace(/(['\\])/g,"\\$1").replace(/[\f]/g,"\\f").replace(/[\b]/g,"\\b").replace(/[\n]/g,"\\n").replace(/[\t]/g,"\\t").replace(/[\r]/g,"\\r").replace(/[\u2028]/g,"\\u2028").replace(/[\u2029]/g,"\\u2029")},createXhr:h.createXhr||function(){var t,e,n;if("undefined"!=typeof XMLHttpRequest)return new XMLHttpRequest;if("undefined"!=typeof ActiveXObject)for(e=0;e<3;e+=1){n=r[e];try{t=new ActiveXObject(n)}catch(t){}if(t){r=[n];break}}return t},parseName:function(t){var e,n,i,o=!1,s=t.indexOf("."),r=0===t.indexOf("./")||0===t.indexOf("../");return-1!==s&&(!r||s>1)?(e=t.substring(0,s),n=t.substring(s+1,t.length)):e=t,-1!==(s=(i=n||e).indexOf("!"))&&(o="strip"===i.substring(s+1),i=i.substring(0,s),n?n=i:e=i),{moduleName:e,ext:n,strip:o}},xdRegExp:/^((\w+)\:)?\/\/([^\/\\]+)/,useXhr:function(t,n,i,o){var s,r,a,c=e.xdRegExp.exec(t);return!c||(s=c[2],a=(r=(r=c[3]).split(":"))[1],r=r[0],!(s&&s!==n||r&&r.toLowerCase()!==i.toLowerCase()||(a||r)&&a!==o))},finishLoad:function(t,n,i,o){i=n?e.strip(i):i,h.isBuild&&(p[t]=i),o(i)},load:function(t,n,i,o){if(o&&o.isBuild&&!o.inlineText)i();else{h.isBuild=o&&o.isBuild;var s=e.parseName(t),r=s.moduleName+(s.ext?"."+s.ext:""),a=n.toUrl(r),c=h.useXhr||e.useXhr;0!==a.indexOf("empty:")?!l||c(a,u,f,d)?e.get(a,function(n){e.finishLoad(t,s.strip,n,i)},function(t){i.error&&i.error(t)}):n([r],function(t){e.finishLoad(s.moduleName+"."+s.ext,s.strip,t,i)}):i()}},write:function(t,n,i,o){if(p.hasOwnProperty(n)){var s=e.jsEscape(p[n]);i.asModule(t+"!"+n,"define(function () { return '"+s+"';});\n")}},writeFile:function(t,n,i,o,s){var r=e.parseName(n),a=r.ext?"."+r.ext:"",c=r.moduleName+a,l=i.toUrl(r.moduleName+a)+".js";e.load(c,i,function(n){var i=function(t){return o(l,t)};i.asModule=function(t,e){return o.asModule(t,l,e)},e.write(t,c,i,s)},s)}},"node"===h.env||!h.env&&"undefined"!=typeof process&&process.versions&&process.versions.node&&!process.versions["node-webkit"]?(n=require.nodeRequire("fs"),e.get=function(t,e,i){try{var o=n.readFileSync(t,"utf8");0===o.indexOf("\ufeff")&&(o=o.substring(1)),e(o)}catch(t){i&&i(t)}}):"xhr"===h.env||!h.env&&e.createXhr()?e.get=function(t,n,i,o){var s,r=e.createXhr();if(r.open("GET",t,!0),o)for(s in o)o.hasOwnProperty(s)&&r.setRequestHeader(s.toLowerCase(),o[s]);h.onXhr&&h.onXhr(r,t),r.onreadystatechange=function(e){var o,s;4===r.readyState&&((o=r.status||0)>399&&o<600?((s=new Error(t+" HTTP status: "+o)).xhr=r,i&&i(s)):n(r.responseText),h.onXhrComplete&&h.onXhrComplete(r,t))},r.send(null)}:"rhino"===h.env||!h.env&&"undefined"!=typeof Packages&&"undefined"!=typeof java?e.get=function(t,e){var n,i,o=new java.io.File(t),s=java.lang.System.getProperty("line.separator"),r=new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(o),"utf-8")),a="";try{for(n=new java.lang.StringBuffer,(i=r.readLine())&&i.length()&&65279===i.charAt(0)&&(i=i.substring(1)),null!==i&&n.append(i);null!==(i=r.readLine());)n.append(s),n.append(i);a=String(n.toString())}finally{r.close()}e(a)}:("xpconnect"===h.env||!h.env&&"undefined"!=typeof Components&&Components.classes&&Components.interfaces)&&(i=Components.classes,o=Components.interfaces,Components.utils.import("resource://gre/modules/FileUtils.jsm"),s="@mozilla.org/windows-registry-key;1"in i,e.get=function(t,e){var n,r,a,c={};s&&(t=t.replace(/\//g,"\\")),a=new FileUtils.File(t);try{(n=i["@mozilla.org/network/file-input-stream;1"].createInstance(o.nsIFileInputStream)).init(a,1,0,!1),(r=i["@mozilla.org/intl/converter-input-stream;1"].createInstance(o.nsIConverterInputStream)).init(n,"utf-8",n.available(),o.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER),r.readString(n.available(),c),r.close(),n.close(),e(c.value)}catch(t){throw new Error((a&&a.path||"")+": "+t)}}),e});
-//# sourceMappingURL=pnotify.loader.js.map
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/* src/PNotify.html generated by Svelte v2.16.1 */
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object" && typeof module !== "undefined" ? module.exports = factory() : typeof define === "function" && define.amd ? define('PNotify', factory) : global.PNotify = factory();
+})(this, function () {
+  "use strict";
+
+  var PNotify = void 0;
+
+  var posTimer = void 0; // Position all timer.
+
+  // These actions need to be done once the DOM is ready.
+  var onDocumentLoaded = function onDocumentLoaded() {
+    PNotify.defaultStack.context = document.body;
+    // Reposition the notices when the window resizes.
+    window.addEventListener('resize', function () {
+      if (posTimer) {
+        clearTimeout(posTimer);
+      }
+      posTimer = setTimeout(function () {
+        PNotify.positionAll();
+      }, 10);
+    });
+  };
+
+  // Creates the background overlay for modal stacks.
+  var createStackOverlay = function createStackOverlay(stack) {
+    var overlay = document.createElement('div');
+    overlay.classList.add('ui-pnotify-modal-overlay');
+    if (stack.context !== document.body) {
+      overlay.style.height = stack.context.scrollHeight + 'px';
+      overlay.style.width = stack.context.scrollWidth + 'px';
+    }
+    // Close the notices on overlay click.
+    overlay.addEventListener('click', function () {
+      if (stack.overlayClose) {
+        PNotify.closeStack(stack);
+      }
+    });
+    stack.overlay = overlay;
+  };
+
+  var insertStackOverlay = function insertStackOverlay(stack) {
+    if (stack.overlay.parentNode !== stack.context) {
+      stack.overlay = stack.context.insertBefore(stack.overlay, stack.context.firstChild);
+    }
+  };
+
+  var removeStackOverlay = function removeStackOverlay(stack) {
+    if (stack.overlay.parentNode) {
+      stack.overlay.parentNode.removeChild(stack.overlay);
+    }
+  };
+
+  // Default arguments for the new notice helper functions.
+  var getDefaultArgs = function getDefaultArgs(options, type) {
+    if ((typeof options === "undefined" ? "undefined" : _typeof(options)) !== 'object') {
+      options = { 'text': options };
+    }
+
+    // Only assign the type if it was requested, so we don't overwrite
+    // options.type if it has something assigned.
+    if (type) {
+      options.type = type;
+    }
+
+    return { target: document.body, data: options };
+  };
+
+  function _styles(_ref) {
+    var styling = _ref.styling;
+
+    return (typeof styling === "undefined" ? "undefined" : _typeof(styling)) === 'object' ? styling : PNotify.styling[styling];
+  }
+
+  function _icons(_ref2) {
+    var icons = _ref2.icons;
+
+    return (typeof icons === "undefined" ? "undefined" : _typeof(icons)) === 'object' ? icons : PNotify.icons[icons];
+  }
+
+  function _widthStyle(_ref3) {
+    var width = _ref3.width;
+
+    return typeof width === 'string' ? 'width: ' + width + ';' : '';
+  }
+
+  function _minHeightStyle(_ref4) {
+    var minHeight = _ref4.minHeight;
+
+    return typeof minHeight === 'string' ? 'min-height: ' + minHeight + ';' : '';
+  }
+
+  function data() {
+    var data = _extends({
+      '_state': 'initializing', // The state can be 'initializing', 'opening', 'open', 'closing', and 'closed'.
+      '_timer': null, // Auto close timer.
+      '_animTimer': null, // Animation timer.
+      '_animating': false, // Stores what is currently being animated (in or out).
+      '_animatingClass': '', // Stores the class that adds entry/exit animation effects.
+      '_moveClass': '', // Stores the class that adds movement animation effects.
+      '_timerHide': false, // Stores whether the notice was hidden by a timer.
+      '_moduleClasses': [], // Modules can add classes here to be added to the notice element. (They should play nice and not remove classes that aren't theirs.)
+      '_moduleIsNoticeOpen': false, // Modules that change how the notice displays (causing the notice element to not appear) can set this to true to make PNotify assume the notice has opened.
+      '_modules': {}, // Stores the instances of the modules.
+      '_modulesPrependContainer': PNotify.modulesPrependContainer,
+      '_modulesAppendContainer': PNotify.modulesAppendContainer
+    }, PNotify.defaults);
+    data.modules = _extends({}, PNotify.defaults.modules);
+    return data;
+  };
+
+  var methods = {
+    // This runs an event on all the modules.
+    runModules: function runModules(event) {
+      if (event === 'init') {
+        // Initializing a module should only be done if it has an init
+        // function, which means it's not rendered in the template.
+        for (var key in PNotify.modules) {
+          if (!PNotify.modules.hasOwnProperty(key)) {
+            continue;
+          }
+          if (typeof PNotify.modules[key].init === 'function') {
+            var _module = PNotify.modules[key].init(this);
+            this.initModule(_module);
+          }
+        }
+      } else {
+        var _get = this.get(),
+            _modules = _get._modules;
+
+        for (var _module2 in _modules) {
+          if (!_modules.hasOwnProperty(_module2)) {
+            continue;
+          }
+          var moduleOptions = _extends({
+            '_notice': this,
+            '_options': this.get()
+          }, this.get().modules[_module2]);
+          _modules[_module2].set(moduleOptions);
+          if (typeof _modules[_module2][event] === 'function') {
+            _modules[_module2][event]();
+          }
+        }
+      }
+    },
+
+
+    // This passes module options to a module.
+    initModule: function initModule(module) {
+      var _get2 = this.get(),
+          modules = _get2.modules;
+
+      if (!modules.hasOwnProperty(module.constructor.key)) {
+        modules[module.constructor.key] = {};
+      }
+      var moduleOptions = _extends({
+        '_notice': this,
+        '_options': this.get()
+      }, modules[module.constructor.key]);
+      module.initModule(moduleOptions);
+
+      // Now save the module instance.
+
+      var _get3 = this.get(),
+          _modules = _get3._modules;
+
+      _modules[module.constructor.key] = module;
+    },
+    update: function update(options) {
+      // Save old options.
+      var oldHide = this.get().hide;
+      var oldIcon = this.get().icon;
+
+      this.set(options);
+
+      // Run the modules.
+      this.runModules('update');
+
+      // Update the timed hiding.
+      if (!this.get().hide) {
+        this.cancelClose();
+      } else if (!oldHide) {
+        this.queueClose();
+      }
+      this.queuePosition();
+
+      // Font Awesome 5 replaces our lovely element with a gross SVG. In order
+      // to make it play nice with Svelte, we have to clear the element and
+      // make it again.
+
+      var _get4 = this.get(),
+          icon = _get4.icon;
+
+      if (icon !== oldIcon && (icon === true && this.get().icons === 'fontawesome5' || typeof icon === 'string' && icon.match(/(^| )fa[srlb]($| )/))) {
+        this.set({ 'icon': false });
+        this.set({ 'icon': icon });
+      }
+
+      return this;
+    },
+
+
+    // Display the notice.
+    open: function open() {
+      var _this = this;
+
+      var _get5 = this.get(),
+          _state = _get5._state,
+          hide = _get5.hide;
+
+      if (_state === 'opening') {
+        return;
+      }
+      if (_state === 'open') {
+        if (hide) {
+          this.queueClose();
+        }
+        return;
+      }
+      this.set({
+        '_state': 'opening',
+        // This makes the notice visibity: hidden; so its dimensions can be
+        // determined.
+        '_animatingClass': 'ui-pnotify-initial-hidden'
+      });
+      // Run the modules.
+      this.runModules('beforeOpen');
+
+      var _get6 = this.get(),
+          stack = _get6.stack;
+      // If the notice is not in the DOM, or in the wrong context, append it.
+
+
+      if (!this.refs.elem.parentNode || stack && stack.context && stack.context !== this.refs.elem.parentNode) {
+        if (stack && stack.context) {
+          stack.context.appendChild(this.refs.elem);
+        } else if (document.body) {
+          document.body.appendChild(this.refs.elem);
+        } else {
+          throw new Error('No context to open this notice in.');
+        }
+      }
+
+      // Wait until the DOM is updated.
+      setTimeout(function () {
+        if (stack) {
+          // Mark the stack so it won't animate the new notice.
+          stack.animation = false;
+          // Now position all the notices.
+          PNotify.positionAll();
+          // Reset animation.
+          stack.animation = true;
+        }
+
+        _this.animateIn(function () {
+          // Now set it to hide.
+          if (_this.get().hide) {
+            _this.queueClose();
+          }
+
+          _this.set({ '_state': 'open' });
+
+          // Run the modules.
+          _this.runModules('afterOpen');
+        });
+      }, 0);
+
+      return this;
+    },
+    remove: function remove(timerHide) {
+      return this.close(timerHide);
+    },
+
+
+    // Remove the notice.
+    close: function close(timerHide) {
+      var _this2 = this;
+
+      var _get7 = this.get(),
+          _state = _get7._state;
+
+      if (_state === 'closing' || _state === 'closed') {
+        return;
+      }
+      this.set({ '_state': 'closing', '_timerHide': !!timerHide }); // Make sure it's a boolean.
+      // Run the modules.
+      this.runModules('beforeClose');
+
+      var _get8 = this.get(),
+          _timer = _get8._timer;
+
+      if (_timer && clearTimeout) {
+        clearTimeout(_timer);
+        this.set({ '_timer': null });
+      }
+      this.animateOut(function () {
+        _this2.set({ '_state': 'closed' });
+        // Run the modules.
+        _this2.runModules('afterClose');
+        _this2.queuePosition();
+        // If we're supposed to remove the notice from the DOM, do it.
+        if (_this2.get().remove) {
+          _this2.refs.elem.parentNode.removeChild(_this2.refs.elem);
+        }
+        // Run the modules.
+        _this2.runModules('beforeDestroy');
+        // Remove object from PNotify.notices to prevent memory leak (issue #49)
+        // unless destroy is off
+        if (_this2.get().destroy) {
+          if (PNotify.notices !== null) {
+            var idx = PNotify.notices.indexOf(_this2);
+            if (idx !== -1) {
+              PNotify.notices.splice(idx, 1);
+            }
+          }
+        }
+        // Run the modules.
+        _this2.runModules('afterDestroy');
+      });
+
+      return this;
+    },
+
+
+    // Animate the notice in.
+    animateIn: function animateIn(callback) {
+      var _this3 = this;
+
+      // Declare that the notice is animating in.
+      this.set({ '_animating': 'in' });
+      var finished = function finished() {
+        _this3.refs.elem.removeEventListener('transitionend', finished);
+
+        var _get9 = _this3.get(),
+            _animTimer = _get9._animTimer,
+            _animating = _get9._animating,
+            _moduleIsNoticeOpen = _get9._moduleIsNoticeOpen;
+
+        if (_animTimer) {
+          clearTimeout(_animTimer);
+        }
+        if (_animating !== 'in') {
+          return;
+        }
+        var visible = _moduleIsNoticeOpen;
+        if (!visible) {
+          var domRect = _this3.refs.elem.getBoundingClientRect();
+          for (var prop in domRect) {
+            if (domRect[prop] > 0) {
+              visible = true;
+              break;
+            }
+          }
+        }
+        if (visible) {
+          if (callback) {
+            callback.call();
+          }
+          // Declare that the notice has completed animating.
+          _this3.set({ '_animating': false });
+        } else {
+          _this3.set({ '_animTimer': setTimeout(finished, 40) });
+        }
+      };
+
+      if (this.get().animation === 'fade') {
+        this.refs.elem.addEventListener('transitionend', finished);
+        this.set({ '_animatingClass': 'ui-pnotify-in' });
+        // eslint-disable-next-line no-unused-expressions
+        this.refs.elem.style.opacity; // This line is necessary for some reason. Some notices don't fade without it.
+        this.set({ '_animatingClass': 'ui-pnotify-in ui-pnotify-fade-in' });
+        // Just in case the event doesn't fire, call it after 650 ms.
+        this.set({ '_animTimer': setTimeout(finished, 650) });
+      } else {
+        this.set({ '_animatingClass': 'ui-pnotify-in' });
+        finished();
+      }
+    },
+
+
+    // Animate the notice out.
+    animateOut: function animateOut(callback) {
+      var _this4 = this;
+
+      // Declare that the notice is animating out.
+      this.set({ '_animating': 'out' });
+      var finished = function finished() {
+        _this4.refs.elem.removeEventListener('transitionend', finished);
+
+        var _get10 = _this4.get(),
+            _animTimer = _get10._animTimer,
+            _animating = _get10._animating,
+            _moduleIsNoticeOpen = _get10._moduleIsNoticeOpen;
+
+        if (_animTimer) {
+          clearTimeout(_animTimer);
+        }
+        if (_animating !== 'out') {
+          return;
+        }
+        var visible = _moduleIsNoticeOpen;
+        if (!visible) {
+          var domRect = _this4.refs.elem.getBoundingClientRect();
+          for (var prop in domRect) {
+            if (domRect[prop] > 0) {
+              visible = true;
+              break;
+            }
+          }
+        }
+        if (!_this4.refs.elem.style.opacity || _this4.refs.elem.style.opacity === '0' || !visible) {
+          _this4.set({ '_animatingClass': '' });
+
+          var _get11 = _this4.get(),
+              stack = _get11.stack;
+
+          if (stack && stack.overlay) {
+            // Go through the modal stack to see if any are left open.
+            // TODO: Rewrite this cause it sucks.
+            var stillOpen = false;
+            for (var i = 0; i < PNotify.notices.length; i++) {
+              var notice = PNotify.notices[i];
+              if (notice !== _this4 && notice.get().stack === stack && notice.get()._state !== 'closed') {
+                stillOpen = true;
+                break;
+              }
+            }
+            if (!stillOpen) {
+              removeStackOverlay(stack);
+            }
+          }
+          if (callback) {
+            callback.call();
+          }
+          // Declare that the notice has completed animating.
+          _this4.set({ '_animating': false });
+        } else {
+          // In case this was called before the notice finished animating.
+          _this4.set({ '_animTimer': setTimeout(finished, 40) });
+        }
+      };
+
+      if (this.get().animation === 'fade') {
+        this.refs.elem.addEventListener('transitionend', finished);
+        this.set({ '_animatingClass': 'ui-pnotify-in' });
+        // Just in case the event doesn't fire, call it after 650 ms.
+        this.set({ '_animTimer': setTimeout(finished, 650) });
+      } else {
+        this.set({ '_animatingClass': '' });
+        finished();
+      }
+    },
+
+
+    // Position the notice.
+    position: function position() {
+      // Get the notice's stack.
+      var _get12 = this.get(),
+          stack = _get12.stack;
+
+      var elem = this.refs.elem;
+      if (!stack) {
+        return;
+      }
+      if (!stack.context) {
+        stack.context = document.body;
+      }
+      if (typeof stack.nextpos1 !== 'number') {
+        stack.nextpos1 = stack.firstpos1;
+      }
+      if (typeof stack.nextpos2 !== 'number') {
+        stack.nextpos2 = stack.firstpos2;
+      }
+      if (typeof stack.addpos2 !== 'number') {
+        stack.addpos2 = 0;
+      }
+
+      // Skip this notice if it's not shown.
+      if (!elem.classList.contains('ui-pnotify-in') && !elem.classList.contains('ui-pnotify-initial-hidden')) {
+        return this;
+      }
+
+      if (stack.modal) {
+        if (!stack.overlay) {
+          createStackOverlay(stack);
+        }
+        insertStackOverlay(stack);
+      }
+
+      // Read from the DOM to cause refresh.
+      elem.getBoundingClientRect();
+
+      if (stack.animation) {
+        // Add animate class.
+        this.set({ '_moveClass': 'ui-pnotify-move' });
+      }
+
+      var spaceY = stack.context === document.body ? window.innerHeight : stack.context.scrollHeight;
+      var spaceX = stack.context === document.body ? window.innerWidth : stack.context.scrollWidth;
+
+      var csspos1 = void 0;
+
+      if (stack.dir1) {
+        csspos1 = {
+          'down': 'top',
+          'up': 'bottom',
+          'left': 'right',
+          'right': 'left'
+        }[stack.dir1];
+
+        // Calculate the current pos1 value.
+        var curpos1 = void 0;
+        switch (stack.dir1) {
+          case 'down':
+            curpos1 = elem.offsetTop;
+            break;
+          case 'up':
+            curpos1 = spaceY - elem.scrollHeight - elem.offsetTop;
+            break;
+          case 'left':
+            curpos1 = spaceX - elem.scrollWidth - elem.offsetLeft;
+            break;
+          case 'right':
+            curpos1 = elem.offsetLeft;
+            break;
+        }
+        // Remember the first pos1, so the first notice goes there.
+        if (typeof stack.firstpos1 === 'undefined') {
+          stack.firstpos1 = curpos1;
+          stack.nextpos1 = stack.firstpos1;
+        }
+      }
+
+      if (stack.dir1 && stack.dir2) {
+        var csspos2 = {
+          'down': 'top',
+          'up': 'bottom',
+          'left': 'right',
+          'right': 'left'
+        }[stack.dir2];
+
+        // Calculate the current pos2 value.
+        var curpos2 = void 0;
+        switch (stack.dir2) {
+          case 'down':
+            curpos2 = elem.offsetTop;
+            break;
+          case 'up':
+            curpos2 = spaceY - elem.scrollHeight - elem.offsetTop;
+            break;
+          case 'left':
+            curpos2 = spaceX - elem.scrollWidth - elem.offsetLeft;
+            break;
+          case 'right':
+            curpos2 = elem.offsetLeft;
+            break;
+        }
+        // Remember the first pos2, so the first notice goes there.
+        if (typeof stack.firstpos2 === 'undefined') {
+          stack.firstpos2 = curpos2;
+          stack.nextpos2 = stack.firstpos2;
+        }
+
+        // Check that it's not beyond the viewport edge.
+        var endY = stack.nextpos1 + elem.offsetHeight + (typeof stack.spacing1 === 'undefined' ? 25 : stack.spacing1);
+        var endX = stack.nextpos1 + elem.offsetWidth + (typeof stack.spacing1 === 'undefined' ? 25 : stack.spacing1);
+        if ((stack.dir1 === 'down' || stack.dir1 === 'up') && endY > spaceY || (stack.dir1 === 'left' || stack.dir1 === 'right') && endX > spaceX) {
+          // If it is, it needs to go back to the first pos1, and over on pos2.
+          stack.nextpos1 = stack.firstpos1;
+          stack.nextpos2 += stack.addpos2 + (typeof stack.spacing2 === 'undefined' ? 25 : stack.spacing2);
+          stack.addpos2 = 0;
+        }
+
+        // Move the notice on dir2.
+        if (typeof stack.nextpos2 === 'number') {
+          elem.style[csspos2] = stack.nextpos2 + 'px';
+          if (!stack.animation) {
+            // eslint-disable-next-line no-unused-expressions
+            elem.style[csspos2]; // Read from the DOM for update.
+          }
+        }
+
+        // Keep track of the widest/tallest notice in the column/row, so we can push the next column/row.
+        switch (stack.dir2) {
+          case 'down':
+          case 'up':
+            if (elem.offsetHeight + (parseFloat(elem.style.marginTop, 10) || 0) + (parseFloat(elem.style.marginBottom, 10) || 0) > stack.addpos2) {
+              stack.addpos2 = elem.offsetHeight;
+            }
+            break;
+          case 'left':
+          case 'right':
+            if (elem.offsetWidth + (parseFloat(elem.style.marginLeft, 10) || 0) + (parseFloat(elem.style.marginRight, 10) || 0) > stack.addpos2) {
+              stack.addpos2 = elem.offsetWidth;
+            }
+            break;
+        }
+      } else if (stack.dir1) {
+        // Center the notice along dir1 axis, because the stack has no dir2.
+        var cssMiddle = void 0,
+            cssposCross = void 0;
+        switch (stack.dir1) {
+          case 'down':
+          case 'up':
+            cssposCross = ['left', 'right'];
+            cssMiddle = stack.context.scrollWidth / 2 - elem.offsetWidth / 2;
+            break;
+          case 'left':
+          case 'right':
+            cssposCross = ['top', 'bottom'];
+            cssMiddle = spaceY / 2 - elem.offsetHeight / 2;
+            break;
+        }
+        elem.style[cssposCross[0]] = cssMiddle + 'px';
+        elem.style[cssposCross[1]] = 'auto';
+        if (!stack.animation) {
+          // eslint-disable-next-line no-unused-expressions
+          elem.style[cssposCross[0]]; // Read from the DOM for update.
+        }
+      }
+
+      if (stack.dir1) {
+        // Move the notice on dir1.
+        if (typeof stack.nextpos1 === 'number') {
+          elem.style[csspos1] = stack.nextpos1 + 'px';
+          if (!stack.animation) {
+            // eslint-disable-next-line no-unused-expressions
+            elem.style[csspos1]; // Read from the DOM for update.
+          }
+        }
+
+        // Calculate the next dir1 position.
+        switch (stack.dir1) {
+          case 'down':
+          case 'up':
+            stack.nextpos1 += elem.offsetHeight + (typeof stack.spacing1 === 'undefined' ? 25 : stack.spacing1);
+            break;
+          case 'left':
+          case 'right':
+            stack.nextpos1 += elem.offsetWidth + (typeof stack.spacing1 === 'undefined' ? 25 : stack.spacing1);
+            break;
+        }
+      } else {
+        // Center the notice on the screen, because the stack has no dir1.
+        var cssMiddleLeft = spaceX / 2 - elem.offsetWidth / 2;
+        var cssMiddleTop = spaceY / 2 - elem.offsetHeight / 2;
+        elem.style.left = cssMiddleLeft + 'px';
+        elem.style.top = cssMiddleTop + 'px';
+        if (!stack.animation) {
+          // eslint-disable-next-line no-unused-expressions
+          elem.style.left; // Read from the DOM for update.
+        }
+      }
+
+      return this;
+    },
+
+
+    // Queue the position all function so it doesn't run repeatedly and
+    // use up resources.
+    queuePosition: function queuePosition(milliseconds) {
+      if (posTimer) {
+        clearTimeout(posTimer);
+      }
+      if (!milliseconds) {
+        milliseconds = 10;
+      }
+      posTimer = setTimeout(function () {
+        PNotify.positionAll();
+      }, milliseconds);
+      return this;
+    },
+    cancelRemove: function cancelRemove() {
+      return this.cancelClose();
+    },
+
+
+    // Cancel any pending removal timer.
+    cancelClose: function cancelClose() {
+      var _get13 = this.get(),
+          _timer = _get13._timer,
+          _animTimer = _get13._animTimer,
+          _state = _get13._state,
+          animation = _get13.animation;
+
+      if (_timer) {
+        clearTimeout(_timer);
+      }
+      if (_animTimer) {
+        clearTimeout(_animTimer);
+      }
+      if (_state === 'closing') {
+        // If it's animating out, stop it.
+        this.set({
+          '_state': 'open',
+          '_animating': false,
+          '_animatingClass': animation === 'fade' ? 'ui-pnotify-in ui-pnotify-fade-in' : 'ui-pnotify-in'
+        });
+      }
+      return this;
+    },
+    queueRemove: function queueRemove() {
+      return this.queueClose();
+    },
+
+
+    // Queue a close timer.
+    queueClose: function queueClose() {
+      var _this5 = this;
+
+      // Cancel any current close timer.
+      this.cancelClose();
+      this.set({
+        '_timer': setTimeout(function () {
+          return _this5.close(true);
+        }, isNaN(this.get().delay) ? 0 : this.get().delay)
+      });
+      return this;
+    },
+    addModuleClass: function addModuleClass() {
+      var _get14 = this.get(),
+          _moduleClasses = _get14._moduleClasses;
+
+      for (var _len = arguments.length, classNames = Array(_len), _key = 0; _key < _len; _key++) {
+        classNames[_key] = arguments[_key];
+      }
+
+      for (var i = 0; i < classNames.length; i++) {
+        var className = classNames[i];
+        if (_moduleClasses.indexOf(className) === -1) {
+          _moduleClasses.push(className);
+        }
+      }
+      this.set({ _moduleClasses: _moduleClasses });
+    },
+    removeModuleClass: function removeModuleClass() {
+      var _get15 = this.get(),
+          _moduleClasses = _get15._moduleClasses;
+
+      for (var _len2 = arguments.length, classNames = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        classNames[_key2] = arguments[_key2];
+      }
+
+      for (var i = 0; i < classNames.length; i++) {
+        var className = classNames[i];
+        var idx = _moduleClasses.indexOf(className);
+        if (idx !== -1) {
+          _moduleClasses.splice(idx, 1);
+        }
+      }
+      this.set({ _moduleClasses: _moduleClasses });
+    },
+    hasModuleClass: function hasModuleClass() {
+      var _get16 = this.get(),
+          _moduleClasses = _get16._moduleClasses;
+
+      for (var _len3 = arguments.length, classNames = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+        classNames[_key3] = arguments[_key3];
+      }
+
+      for (var i = 0; i < classNames.length; i++) {
+        var className = classNames[i];
+        if (_moduleClasses.indexOf(className) === -1) {
+          return false;
+        }
+      }
+      return true;
+    }
+  };
+
+  function oncreate() {
+    var _this6 = this;
+
+    this.on('mouseenter', function (e) {
+      // Stop animation, reset the removal timer when the user mouses over.
+      if (_this6.get().mouseReset && _this6.get()._animating === 'out') {
+        if (!_this6.get()._timerHide) {
+          return;
+        }
+        _this6.cancelClose();
+      }
+      // Stop the close timer.
+      if (_this6.get().hide && _this6.get().mouseReset) {
+        _this6.cancelClose();
+      }
+    });
+
+    this.on('mouseleave', function (e) {
+      // Start the close timer.
+      if (_this6.get().hide && _this6.get().mouseReset && _this6.get()._animating !== 'out') {
+        _this6.queueClose();
+      }
+      PNotify.positionAll();
+    });
+
+    var _get17 = this.get(),
+        stack = _get17.stack;
+
+    // Add the notice to the notice array.
+
+
+    if (stack && stack.push === 'top') {
+      PNotify.notices.splice(0, 0, this);
+    } else {
+      PNotify.notices.push(this);
+    }
+
+    // Run the modules.
+    this.runModules('init');
+
+    // We're now initialized, but haven't been opened yet.
+    this.set({ '_state': 'closed' });
+
+    // Display the notice.
+    if (this.get().autoDisplay) {
+      this.open();
+    }
+  };
+
+  function setup(Component) {
+    // Add static properties to the PNotify object.
+    PNotify = Component;
+
+    PNotify.VERSION = '4.0.0';
+
+    PNotify.defaultStack = {
+      dir1: 'down',
+      dir2: 'left',
+      firstpos1: 25,
+      firstpos2: 25,
+      spacing1: 36,
+      spacing2: 36,
+      push: 'bottom',
+      context: window && document.body
+    };
+
+    PNotify.defaults = {
+      // The notice's title.
+      title: false,
+      // Whether to trust the title or escape its contents. (Not allow HTML.)
+      titleTrusted: false,
+      // The notice's text.
+      text: false,
+      // Whether to trust the text or escape its contents. (Not allow HTML.)
+      textTrusted: false,
+      // What styling classes to use. (Can be 'brighttheme', 'bootstrap3', 'bootstrap4', or a styling object.)
+      styling: 'brighttheme',
+      // What icons to use (Can be 'brighttheme', 'bootstrap3', 'fontawesome4', 'fontawesome5', or an icon object.)
+      icons: 'brighttheme',
+      // Additional classes to be added to the notice. (For custom styling.)
+      addClass: '',
+      // Class to be added to the notice for corner styling.
+      cornerClass: '',
+      // Display the notice when it is created.
+      autoDisplay: true,
+      // Width of the notice.
+      width: '360px',
+      // Minimum height of the notice. It will expand to fit content.
+      minHeight: '16px',
+      // Type of the notice. 'notice', 'info', 'success', or 'error'.
+      type: 'notice',
+      // Set icon to true to use the default icon for the selected
+      // style/type, false for no icon, or a string for your own icon class.
+      icon: true,
+      // The animation to use when displaying and hiding the notice. 'none'
+      // and 'fade' are supported through CSS. Others are supported
+      // through the Animate module and Animate.css.
+      animation: 'fade',
+      // Speed at which the notice animates in and out. 'slow', 'normal',
+      // or 'fast'. Respectively, 400ms, 250ms, 100ms.
+      animateSpeed: 'normal',
+      // Display a drop shadow.
+      shadow: true,
+      // After a delay, remove the notice.
+      hide: true,
+      // Delay in milliseconds before the notice is removed.
+      delay: 8000,
+      // Reset the hide timer if the mouse moves over the notice.
+      mouseReset: true,
+      // Remove the notice's elements from the DOM after it is removed.
+      remove: true,
+      // Whether to remove the notice from the global array when it is closed.
+      destroy: true,
+      // The stack on which the notices will be placed. Also controls the
+      // direction the notices stack.
+      stack: PNotify.defaultStack,
+      // This is where options for modules should be defined.
+      modules: {}
+    };
+
+    // An array of all active notices.
+    PNotify.notices = [];
+
+    // This object holds all the PNotify modules. They are used to provide
+    // additional functionality.
+    PNotify.modules = {};
+
+    // Modules can add themselves to these to be rendered in the template.
+    PNotify.modulesPrependContainer = [];
+    PNotify.modulesAppendContainer = [];
+
+    // Helper function to create a new notice.
+    PNotify.alert = function (options) {
+      return new PNotify(getDefaultArgs(options));
+    };
+    // Helper function to create a new notice (notice type).
+    PNotify.notice = function (options) {
+      return new PNotify(getDefaultArgs(options, 'notice'));
+    };
+    // Helper function to create a new notice (info type).
+    PNotify.info = function (options) {
+      return new PNotify(getDefaultArgs(options, 'info'));
+    };
+    // Helper function to create a new notice (success type).
+    PNotify.success = function (options) {
+      return new PNotify(getDefaultArgs(options, 'success'));
+    };
+    // Helper function to create a new notice (error type).
+    PNotify.error = function (options) {
+      return new PNotify(getDefaultArgs(options, 'error'));
+    };
+
+    PNotify.removeAll = function () {
+      PNotify.closeAll();
+    };
+
+    // Close all notices.
+    PNotify.closeAll = function () {
+      for (var i = 0; i < PNotify.notices.length; i++) {
+        if (PNotify.notices[i].close) {
+          PNotify.notices[i].close(false);
+        }
+      }
+    };
+
+    PNotify.removeStack = function (stack) {
+      PNotify.closeStack(stack);
+    };
+
+    // Close all notices in a single stack.
+    PNotify.closeStack = function (stack) {
+      if (stack === false) {
+        return;
+      }
+      for (var i = 0; i < PNotify.notices.length; i++) {
+        if (PNotify.notices[i].close && PNotify.notices[i].get().stack === stack) {
+          PNotify.notices[i].close(false);
+        }
+      }
+    };
+
+    // Position all notices.
+    PNotify.positionAll = function () {
+      // This timer is used for queueing this function so it doesn't run
+      // repeatedly.
+      if (posTimer) {
+        clearTimeout(posTimer);
+      }
+      posTimer = null;
+      // Reset the next position data.
+      if (PNotify.notices.length > 0) {
+        for (var i = 0; i < PNotify.notices.length; i++) {
+          var notice = PNotify.notices[i];
+
+          var _notice$get = notice.get(),
+              stack = _notice$get.stack;
+
+          if (!stack) {
+            continue;
+          }
+          if (stack.overlay) {
+            removeStackOverlay(stack);
+          }
+          stack.nextpos1 = stack.firstpos1;
+          stack.nextpos2 = stack.firstpos2;
+          stack.addpos2 = 0;
+        }
+        for (var _i = 0; _i < PNotify.notices.length; _i++) {
+          PNotify.notices[_i].position();
+        }
+      } else {
+        delete PNotify.defaultStack.nextpos1;
+        delete PNotify.defaultStack.nextpos2;
+      }
+    };
+
+    PNotify.styling = {
+      brighttheme: {
+        // Bright Theme doesn't require any UI libraries.
+        container: 'brighttheme',
+        notice: 'brighttheme-notice',
+        info: 'brighttheme-info',
+        success: 'brighttheme-success',
+        error: 'brighttheme-error'
+      },
+      bootstrap3: {
+        container: 'alert',
+        notice: 'alert-warning',
+        info: 'alert-info',
+        success: 'alert-success',
+        error: 'alert-danger',
+        icon: 'ui-pnotify-icon-bs3'
+      },
+      bootstrap4: {
+        container: 'alert',
+        notice: 'alert-warning',
+        info: 'alert-info',
+        success: 'alert-success',
+        error: 'alert-danger',
+        icon: 'ui-pnotify-icon-bs4',
+        title: 'ui-pnotify-title-bs4'
+      }
+    };
+
+    // icons are separate from the style, since bs4 doesn't come with any
+    PNotify.icons = {
+      brighttheme: {
+        notice: 'brighttheme-icon-notice',
+        info: 'brighttheme-icon-info',
+        success: 'brighttheme-icon-success',
+        error: 'brighttheme-icon-error'
+      },
+      bootstrap3: {
+        notice: 'glyphicon glyphicon-exclamation-sign',
+        info: 'glyphicon glyphicon-info-sign',
+        success: 'glyphicon glyphicon-ok-sign',
+        error: 'glyphicon glyphicon-warning-sign'
+      },
+      // User must have Font Awesome v4.0+
+      fontawesome4: {
+        notice: 'fa fa-exclamation-circle',
+        info: 'fa fa-info-circle',
+        success: 'fa fa-check-circle',
+        error: 'fa fa-exclamation-triangle'
+      },
+      // User must have Font Awesome v5.0+
+      fontawesome5: {
+        notice: 'fas fa-exclamation-circle',
+        info: 'fas fa-info-circle',
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-triangle'
+      }
+    };
+
+    // Run the deferred actions once the DOM is ready.
+    if (window && document.body) {
+      onDocumentLoaded();
+    } else {
+      document.addEventListener('DOMContentLoaded', onDocumentLoaded);
+    }
+  }
+
+  function add_css() {
+    var style = createElement("style");
+    style.id = 'svelte-1eldsjg-style';
+    style.textContent = "body > .ui-pnotify{position:fixed;z-index:100040}body > .ui-pnotify.ui-pnotify-modal{z-index:100042}.ui-pnotify{position:absolute;height:auto;z-index:1;display:none}.ui-pnotify.ui-pnotify-modal{z-index:3}.ui-pnotify.ui-pnotify-in{display:block}.ui-pnotify.ui-pnotify-initial-hidden{display:block;visibility:hidden}.ui-pnotify.ui-pnotify-move{transition:left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-slow{transition:opacity .4s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-slow.ui-pnotify.ui-pnotify-move{transition:opacity .4s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-normal{transition:opacity .25s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-normal.ui-pnotify.ui-pnotify-move{transition:opacity .25s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-fast{transition:opacity .1s linear;opacity:0}.ui-pnotify.ui-pnotify-fade-fast.ui-pnotify.ui-pnotify-move{transition:opacity .1s linear, left .5s ease, top .5s ease, right .5s ease, bottom .5s ease}.ui-pnotify.ui-pnotify-fade-in{opacity:1}.ui-pnotify .ui-pnotify-shadow{-webkit-box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1);-moz-box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1);box-shadow:0px 6px 28px 0px rgba(0,0,0,0.1)}.ui-pnotify-container{background-position:0 0;padding:.8em;height:100%;margin:0}.ui-pnotify-container:after{content:\" \";visibility:hidden;display:block;height:0;clear:both}.ui-pnotify-container.ui-pnotify-sharp{-webkit-border-radius:0;-moz-border-radius:0;border-radius:0}.ui-pnotify-title{display:block;white-space:pre-line;margin-bottom:.4em;margin-top:0}.ui-pnotify.ui-pnotify-with-icon .ui-pnotify-title,.ui-pnotify.ui-pnotify-with-icon .ui-pnotify-text{margin-left:24px}[dir=rtl] .ui-pnotify.ui-pnotify-with-icon .ui-pnotify-title,[dir=rtl] .ui-pnotify.ui-pnotify-with-icon .ui-pnotify-text{margin-right:24px;margin-left:0}.ui-pnotify-title-bs4{font-size:1.2rem}.ui-pnotify-text{display:block;white-space:pre-line}.ui-pnotify-icon,.ui-pnotify-icon span{display:block;float:left}[dir=rtl] .ui-pnotify-icon,[dir=rtl] .ui-pnotify-icon span{float:right}.ui-pnotify-icon-bs3 > span{position:relative;top:2px}.ui-pnotify-icon-bs4 > span{position:relative;top:4px}.ui-pnotify-modal-overlay{background-color:rgba(0, 0, 0, .4);top:0;left:0;position:absolute;height:100%;width:100%;z-index:2}body > .ui-pnotify-modal-overlay{position:fixed;z-index:100041}";
+    append(document.head, style);
+  }
+
+  function get_each1_context(ctx, list, i) {
+    var child_ctx = Object.create(ctx);
+    child_ctx.module = list[i];
+    return child_ctx;
+  }
+
+  function get_each0_context(ctx, list, i) {
+    var child_ctx = Object.create(ctx);
+    child_ctx.module = list[i];
+    return child_ctx;
+  }
+
+  function create_main_fragment(component, ctx) {
+    var div1,
+        div0,
+        each0_blocks_1 = [],
+        each0_lookup = blankObject(),
+        text0,
+        text1,
+        text2,
+        text3,
+        each1_blocks_1 = [],
+        each1_lookup = blankObject(),
+        div0_class_value,
+        div0_style_value,
+        div1_class_value;
+
+    var each0_value = ctx._modulesPrependContainer;
+
+    var get_key = function get_key(ctx) {
+      return ctx.module.key;
+    };
+
+    for (var i = 0; i < each0_value.length; i += 1) {
+      var child_ctx = get_each0_context(ctx, each0_value, i);
+      var key = get_key(child_ctx);
+      each0_blocks_1[i] = each0_lookup[key] = create_each_block_1(component, key, child_ctx);
+    }
+
+    var if_block0 = ctx.icon !== false && create_if_block_4(component, ctx);
+
+    var if_block1 = ctx.title !== false && create_if_block_2(component, ctx);
+
+    var if_block2 = ctx.text !== false && create_if_block(component, ctx);
+
+    var each1_value = ctx._modulesAppendContainer;
+
+    var get_key_1 = function get_key_1(ctx) {
+      return ctx.module.key;
+    };
+
+    for (var i = 0; i < each1_value.length; i += 1) {
+      var _child_ctx = get_each1_context(ctx, each1_value, i);
+      var _key4 = get_key_1(_child_ctx);
+      each1_blocks_1[i] = each1_lookup[_key4] = create_each_block(component, _key4, _child_ctx);
+    }
+
+    function mouseover_handler(event) {
+      component.fire("mouseover", event);
+    }
+
+    function mouseout_handler(event) {
+      component.fire("mouseout", event);
+    }
+
+    function mouseenter_handler(event) {
+      component.fire("mouseenter", event);
+    }
+
+    function mouseleave_handler(event) {
+      component.fire("mouseleave", event);
+    }
+
+    function mousemove_handler(event) {
+      component.fire("mousemove", event);
+    }
+
+    function mousedown_handler(event) {
+      component.fire("mousedown", event);
+    }
+
+    function mouseup_handler(event) {
+      component.fire("mouseup", event);
+    }
+
+    function click_handler(event) {
+      component.fire("click", event);
+    }
+
+    function dblclick_handler(event) {
+      component.fire("dblclick", event);
+    }
+
+    function focus_handler(event) {
+      component.fire("focus", event);
+    }
+
+    function blur_handler(event) {
+      component.fire("blur", event);
+    }
+
+    function touchstart_handler(event) {
+      component.fire("touchstart", event);
+    }
+
+    function touchmove_handler(event) {
+      component.fire("touchmove", event);
+    }
+
+    function touchend_handler(event) {
+      component.fire("touchend", event);
+    }
+
+    function touchcancel_handler(event) {
+      component.fire("touchcancel", event);
+    }
+
+    return {
+      c: function c() {
+        div1 = createElement("div");
+        div0 = createElement("div");
+
+        for (i = 0; i < each0_blocks_1.length; i += 1) {
+          each0_blocks_1[i].c();
+        }text0 = createText("\n    ");
+        if (if_block0) if_block0.c();
+        text1 = createText("\n    ");
+        if (if_block1) if_block1.c();
+        text2 = createText("\n    ");
+        if (if_block2) if_block2.c();
+        text3 = createText("\n    ");
+
+        for (i = 0; i < each1_blocks_1.length; i += 1) {
+          each1_blocks_1[i].c();
+        }div0.className = div0_class_value = "\n        ui-pnotify-container\n        " + (ctx._styles.container ? ctx._styles.container : '') + "\n        " + (ctx._styles[ctx.type] ? ctx._styles[ctx.type] : '') + "\n        " + ctx.cornerClass + "\n        " + (ctx.shadow ? 'ui-pnotify-shadow' : '') + "\n      ";
+        div0.style.cssText = div0_style_value = "" + ctx._widthStyle + " " + ctx._minHeightStyle;
+        setAttribute(div0, "role", "alert");
+        addListener(div1, "mouseover", mouseover_handler);
+        addListener(div1, "mouseout", mouseout_handler);
+        addListener(div1, "mouseenter", mouseenter_handler);
+        addListener(div1, "mouseleave", mouseleave_handler);
+        addListener(div1, "mousemove", mousemove_handler);
+        addListener(div1, "mousedown", mousedown_handler);
+        addListener(div1, "mouseup", mouseup_handler);
+        addListener(div1, "click", click_handler);
+        addListener(div1, "dblclick", dblclick_handler);
+        addListener(div1, "focus", focus_handler);
+        addListener(div1, "blur", blur_handler);
+        addListener(div1, "touchstart", touchstart_handler);
+        addListener(div1, "touchmove", touchmove_handler);
+        addListener(div1, "touchend", touchend_handler);
+        addListener(div1, "touchcancel", touchcancel_handler);
+        div1.className = div1_class_value = "\n      ui-pnotify\n      " + (ctx.icon !== false ? 'ui-pnotify-with-icon' : '') + "\n      " + (ctx._styles.element ? ctx._styles.element : '') + "\n      " + ctx.addClass + "\n      " + ctx._animatingClass + "\n      " + ctx._moveClass + "\n      " + (ctx.animation === 'fade' ? 'ui-pnotify-fade-' + ctx.animateSpeed : '') + "\n      " + (ctx.stack && ctx.stack.modal ? 'ui-pnotify-modal' : '') + "\n      " + ctx._moduleClasses.join(' ') + "\n    ";
+        setAttribute(div1, "aria-live", "assertive");
+        setAttribute(div1, "role", "alertdialog");
+        setAttribute(div1, "ui-pnotify", true);
+      },
+      m: function m(target, anchor) {
+        insert(target, div1, anchor);
+        append(div1, div0);
+
+        for (i = 0; i < each0_blocks_1.length; i += 1) {
+          each0_blocks_1[i].m(div0, null);
+        }append(div0, text0);
+        if (if_block0) if_block0.m(div0, null);
+        append(div0, text1);
+        if (if_block1) if_block1.m(div0, null);
+        append(div0, text2);
+        if (if_block2) if_block2.m(div0, null);
+        append(div0, text3);
+
+        for (i = 0; i < each1_blocks_1.length; i += 1) {
+          each1_blocks_1[i].m(div0, null);
+        }component.refs.container = div0;
+        component.refs.elem = div1;
+      },
+      p: function p(changed, ctx) {
+        var each0_value = ctx._modulesPrependContainer;
+        each0_blocks_1 = updateKeyedEach(each0_blocks_1, component, changed, get_key, 1, ctx, each0_value, each0_lookup, div0, destroyBlock, create_each_block_1, "m", text0, get_each0_context);
+
+        if (ctx.icon !== false) {
+          if (if_block0) {
+            if_block0.p(changed, ctx);
+          } else {
+            if_block0 = create_if_block_4(component, ctx);
+            if_block0.c();
+            if_block0.m(div0, text1);
+          }
+        } else if (if_block0) {
+          if_block0.d(1);
+          if_block0 = null;
+        }
+
+        if (ctx.title !== false) {
+          if (if_block1) {
+            if_block1.p(changed, ctx);
+          } else {
+            if_block1 = create_if_block_2(component, ctx);
+            if_block1.c();
+            if_block1.m(div0, text2);
+          }
+        } else if (if_block1) {
+          if_block1.d(1);
+          if_block1 = null;
+        }
+
+        if (ctx.text !== false) {
+          if (if_block2) {
+            if_block2.p(changed, ctx);
+          } else {
+            if_block2 = create_if_block(component, ctx);
+            if_block2.c();
+            if_block2.m(div0, text3);
+          }
+        } else if (if_block2) {
+          if_block2.d(1);
+          if_block2 = null;
+        }
+
+        var each1_value = ctx._modulesAppendContainer;
+        each1_blocks_1 = updateKeyedEach(each1_blocks_1, component, changed, get_key_1, 1, ctx, each1_value, each1_lookup, div0, destroyBlock, create_each_block, "m", null, get_each1_context);
+
+        if ((changed._styles || changed.type || changed.cornerClass || changed.shadow) && div0_class_value !== (div0_class_value = "\n        ui-pnotify-container\n        " + (ctx._styles.container ? ctx._styles.container : '') + "\n        " + (ctx._styles[ctx.type] ? ctx._styles[ctx.type] : '') + "\n        " + ctx.cornerClass + "\n        " + (ctx.shadow ? 'ui-pnotify-shadow' : '') + "\n      ")) {
+          div0.className = div0_class_value;
+        }
+
+        if ((changed._widthStyle || changed._minHeightStyle) && div0_style_value !== (div0_style_value = "" + ctx._widthStyle + " " + ctx._minHeightStyle)) {
+          div0.style.cssText = div0_style_value;
+        }
+
+        if ((changed.icon || changed._styles || changed.addClass || changed._animatingClass || changed._moveClass || changed.animation || changed.animateSpeed || changed.stack || changed._moduleClasses) && div1_class_value !== (div1_class_value = "\n      ui-pnotify\n      " + (ctx.icon !== false ? 'ui-pnotify-with-icon' : '') + "\n      " + (ctx._styles.element ? ctx._styles.element : '') + "\n      " + ctx.addClass + "\n      " + ctx._animatingClass + "\n      " + ctx._moveClass + "\n      " + (ctx.animation === 'fade' ? 'ui-pnotify-fade-' + ctx.animateSpeed : '') + "\n      " + (ctx.stack && ctx.stack.modal ? 'ui-pnotify-modal' : '') + "\n      " + ctx._moduleClasses.join(' ') + "\n    ")) {
+          div1.className = div1_class_value;
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(div1);
+        }
+
+        for (i = 0; i < each0_blocks_1.length; i += 1) {
+          each0_blocks_1[i].d();
+        }if (if_block0) if_block0.d();
+        if (if_block1) if_block1.d();
+        if (if_block2) if_block2.d();
+
+        for (i = 0; i < each1_blocks_1.length; i += 1) {
+          each1_blocks_1[i].d();
+        }if (component.refs.container === div0) component.refs.container = null;
+        removeListener(div1, "mouseover", mouseover_handler);
+        removeListener(div1, "mouseout", mouseout_handler);
+        removeListener(div1, "mouseenter", mouseenter_handler);
+        removeListener(div1, "mouseleave", mouseleave_handler);
+        removeListener(div1, "mousemove", mousemove_handler);
+        removeListener(div1, "mousedown", mousedown_handler);
+        removeListener(div1, "mouseup", mouseup_handler);
+        removeListener(div1, "click", click_handler);
+        removeListener(div1, "dblclick", dblclick_handler);
+        removeListener(div1, "focus", focus_handler);
+        removeListener(div1, "blur", blur_handler);
+        removeListener(div1, "touchstart", touchstart_handler);
+        removeListener(div1, "touchmove", touchmove_handler);
+        removeListener(div1, "touchend", touchend_handler);
+        removeListener(div1, "touchcancel", touchcancel_handler);
+        if (component.refs.elem === div1) component.refs.elem = null;
+      }
+    };
+  }
+
+  // (53:4) {#each _modulesPrependContainer as module (module.key)}
+  function create_each_block_1(component, key_1, ctx) {
+    var first, switch_instance_anchor;
+
+    var switch_value = ctx.module;
+
+    function switch_props(ctx) {
+      return {
+        root: component.root,
+        store: component.store
+      };
+    }
+
+    if (switch_value) {
+      var switch_instance = new switch_value(switch_props(ctx));
+    }
+
+    function switch_instance_init(event) {
+      component.initModule(event.module);
+    }
+
+    if (switch_instance) switch_instance.on("init", switch_instance_init);
+
+    return {
+      key: key_1,
+
+      first: null,
+
+      c: function c() {
+        first = createComment();
+        if (switch_instance) switch_instance._fragment.c();
+        switch_instance_anchor = createComment();
+        this.first = first;
+      },
+      m: function m(target, anchor) {
+        insert(target, first, anchor);
+
+        if (switch_instance) {
+          switch_instance._mount(target, anchor);
+        }
+
+        insert(target, switch_instance_anchor, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (switch_value !== (switch_value = ctx.module)) {
+          if (switch_instance) {
+            switch_instance.destroy();
+          }
+
+          if (switch_value) {
+            switch_instance = new switch_value(switch_props(ctx));
+            switch_instance._fragment.c();
+            switch_instance._mount(switch_instance_anchor.parentNode, switch_instance_anchor);
+
+            switch_instance.on("init", switch_instance_init);
+          } else {
+            switch_instance = null;
+          }
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(first);
+          detachNode(switch_instance_anchor);
+        }
+
+        if (switch_instance) switch_instance.destroy(detach);
+      }
+    };
+  }
+
+  // (56:4) {#if icon !== false}
+  function create_if_block_4(component, ctx) {
+    var div, span, span_class_value, div_class_value;
+
+    return {
+      c: function c() {
+        div = createElement("div");
+        span = createElement("span");
+        span.className = span_class_value = ctx.icon === true ? ctx._icons[ctx.type] ? ctx._icons[ctx.type] : '' : ctx.icon;
+        div.className = div_class_value = "ui-pnotify-icon " + (ctx._styles.icon ? ctx._styles.icon : '');
+      },
+      m: function m(target, anchor) {
+        insert(target, div, anchor);
+        append(div, span);
+        component.refs.iconContainer = div;
+      },
+      p: function p(changed, ctx) {
+        if ((changed.icon || changed._icons || changed.type) && span_class_value !== (span_class_value = ctx.icon === true ? ctx._icons[ctx.type] ? ctx._icons[ctx.type] : '' : ctx.icon)) {
+          span.className = span_class_value;
+        }
+
+        if (changed._styles && div_class_value !== (div_class_value = "ui-pnotify-icon " + (ctx._styles.icon ? ctx._styles.icon : ''))) {
+          div.className = div_class_value;
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(div);
+        }
+
+        if (component.refs.iconContainer === div) component.refs.iconContainer = null;
+      }
+    };
+  }
+
+  // (61:4) {#if title !== false}
+  function create_if_block_2(component, ctx) {
+    var h4, h4_class_value;
+
+    function select_block_type(ctx) {
+      if (ctx.titleTrusted) return create_if_block_3;
+      return create_else_block_1;
+    }
+
+    var current_block_type = select_block_type(ctx);
+    var if_block = current_block_type(component, ctx);
+
+    return {
+      c: function c() {
+        h4 = createElement("h4");
+        if_block.c();
+        h4.className = h4_class_value = "ui-pnotify-title " + (ctx._styles.title ? ctx._styles.title : '');
+      },
+      m: function m(target, anchor) {
+        insert(target, h4, anchor);
+        if_block.m(h4, null);
+        component.refs.titleContainer = h4;
+      },
+      p: function p(changed, ctx) {
+        if (current_block_type === (current_block_type = select_block_type(ctx)) && if_block) {
+          if_block.p(changed, ctx);
+        } else {
+          if_block.d(1);
+          if_block = current_block_type(component, ctx);
+          if_block.c();
+          if_block.m(h4, null);
+        }
+
+        if (changed._styles && h4_class_value !== (h4_class_value = "ui-pnotify-title " + (ctx._styles.title ? ctx._styles.title : ''))) {
+          h4.className = h4_class_value;
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(h4);
+        }
+
+        if_block.d();
+        if (component.refs.titleContainer === h4) component.refs.titleContainer = null;
+      }
+    };
+  }
+
+  // (65:8) {:else}
+  function create_else_block_1(component, ctx) {
+    var text;
+
+    return {
+      c: function c() {
+        text = createText(ctx.title);
+      },
+      m: function m(target, anchor) {
+        insert(target, text, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (changed.title) {
+          setData(text, ctx.title);
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(text);
+        }
+      }
+    };
+  }
+
+  // (63:8) {#if titleTrusted}
+  function create_if_block_3(component, ctx) {
+    var raw_before, raw_after;
+
+    return {
+      c: function c() {
+        raw_before = createElement('noscript');
+        raw_after = createElement('noscript');
+      },
+      m: function m(target, anchor) {
+        insert(target, raw_before, anchor);
+        raw_before.insertAdjacentHTML("afterend", ctx.title);
+        insert(target, raw_after, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (changed.title) {
+          detachBetween(raw_before, raw_after);
+          raw_before.insertAdjacentHTML("afterend", ctx.title);
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachBetween(raw_before, raw_after);
+          detachNode(raw_before);
+          detachNode(raw_after);
+        }
+      }
+    };
+  }
+
+  // (70:4) {#if text !== false}
+  function create_if_block(component, ctx) {
+    var div, div_class_value;
+
+    function select_block_type_1(ctx) {
+      if (ctx.textTrusted) return create_if_block_1;
+      return create_else_block;
+    }
+
+    var current_block_type = select_block_type_1(ctx);
+    var if_block = current_block_type(component, ctx);
+
+    return {
+      c: function c() {
+        div = createElement("div");
+        if_block.c();
+        div.className = div_class_value = "ui-pnotify-text " + (ctx._styles.text ? ctx._styles.text : '');
+        setAttribute(div, "role", "alert");
+      },
+      m: function m(target, anchor) {
+        insert(target, div, anchor);
+        if_block.m(div, null);
+        component.refs.textContainer = div;
+      },
+      p: function p(changed, ctx) {
+        if (current_block_type === (current_block_type = select_block_type_1(ctx)) && if_block) {
+          if_block.p(changed, ctx);
+        } else {
+          if_block.d(1);
+          if_block = current_block_type(component, ctx);
+          if_block.c();
+          if_block.m(div, null);
+        }
+
+        if (changed._styles && div_class_value !== (div_class_value = "ui-pnotify-text " + (ctx._styles.text ? ctx._styles.text : ''))) {
+          div.className = div_class_value;
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(div);
+        }
+
+        if_block.d();
+        if (component.refs.textContainer === div) component.refs.textContainer = null;
+      }
+    };
+  }
+
+  // (74:8) {:else}
+  function create_else_block(component, ctx) {
+    var text;
+
+    return {
+      c: function c() {
+        text = createText(ctx.text);
+      },
+      m: function m(target, anchor) {
+        insert(target, text, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (changed.text) {
+          setData(text, ctx.text);
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(text);
+        }
+      }
+    };
+  }
+
+  // (72:8) {#if textTrusted}
+  function create_if_block_1(component, ctx) {
+    var raw_before, raw_after;
+
+    return {
+      c: function c() {
+        raw_before = createElement('noscript');
+        raw_after = createElement('noscript');
+      },
+      m: function m(target, anchor) {
+        insert(target, raw_before, anchor);
+        raw_before.insertAdjacentHTML("afterend", ctx.text);
+        insert(target, raw_after, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (changed.text) {
+          detachBetween(raw_before, raw_after);
+          raw_before.insertAdjacentHTML("afterend", ctx.text);
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachBetween(raw_before, raw_after);
+          detachNode(raw_before);
+          detachNode(raw_after);
+        }
+      }
+    };
+  }
+
+  // (79:4) {#each _modulesAppendContainer as module (module.key)}
+  function create_each_block(component, key_1, ctx) {
+    var first, switch_instance_anchor;
+
+    var switch_value = ctx.module;
+
+    function switch_props(ctx) {
+      return {
+        root: component.root,
+        store: component.store
+      };
+    }
+
+    if (switch_value) {
+      var switch_instance = new switch_value(switch_props(ctx));
+    }
+
+    function switch_instance_init(event) {
+      component.initModule(event.module);
+    }
+
+    if (switch_instance) switch_instance.on("init", switch_instance_init);
+
+    return {
+      key: key_1,
+
+      first: null,
+
+      c: function c() {
+        first = createComment();
+        if (switch_instance) switch_instance._fragment.c();
+        switch_instance_anchor = createComment();
+        this.first = first;
+      },
+      m: function m(target, anchor) {
+        insert(target, first, anchor);
+
+        if (switch_instance) {
+          switch_instance._mount(target, anchor);
+        }
+
+        insert(target, switch_instance_anchor, anchor);
+      },
+      p: function p(changed, ctx) {
+        if (switch_value !== (switch_value = ctx.module)) {
+          if (switch_instance) {
+            switch_instance.destroy();
+          }
+
+          if (switch_value) {
+            switch_instance = new switch_value(switch_props(ctx));
+            switch_instance._fragment.c();
+            switch_instance._mount(switch_instance_anchor.parentNode, switch_instance_anchor);
+
+            switch_instance.on("init", switch_instance_init);
+          } else {
+            switch_instance = null;
+          }
+        }
+      },
+      d: function d(detach) {
+        if (detach) {
+          detachNode(first);
+          detachNode(switch_instance_anchor);
+        }
+
+        if (switch_instance) switch_instance.destroy(detach);
+      }
+    };
+  }
+
+  function PNotify_1(options) {
+    var _this7 = this;
+
+    init(this, options);
+    this.refs = {};
+    this._state = assign(data(), options.data);
+
+    this._recompute({ styling: 1, icons: 1, width: 1, minHeight: 1 }, this._state);
+    this._intro = true;
+
+    if (!document.getElementById("svelte-1eldsjg-style")) add_css();
+
+    this._fragment = create_main_fragment(this, this._state);
+
+    this.root._oncreate.push(function () {
+      oncreate.call(_this7);
+      _this7.fire("update", { changed: assignTrue({}, _this7._state), current: _this7._state });
+    });
+
+    if (options.target) {
+      this._fragment.c();
+      this._mount(options.target, options.anchor);
+
+      flush(this);
+    }
+  }
+
+  assign(PNotify_1.prototype, {
+    destroy: destroy,
+    get: get,
+    fire: fire,
+    on: on,
+    set: set,
+    _set: _set,
+    _stage: _stage,
+    _mount: _mount,
+    _differs: _differs
+  });
+  assign(PNotify_1.prototype, methods);
+
+  PNotify_1.prototype._recompute = function _recompute(changed, state) {
+    if (changed.styling) {
+      if (this._differs(state._styles, state._styles = _styles(state))) changed._styles = true;
+    }
+
+    if (changed.icons) {
+      if (this._differs(state._icons, state._icons = _icons(state))) changed._icons = true;
+    }
+
+    if (changed.width) {
+      if (this._differs(state._widthStyle, state._widthStyle = _widthStyle(state))) changed._widthStyle = true;
+    }
+
+    if (changed.minHeight) {
+      if (this._differs(state._minHeightStyle, state._minHeightStyle = _minHeightStyle(state))) changed._minHeightStyle = true;
+    }
+  };
+
+  setup(PNotify_1);
+
+  function createElement(name) {
+    return document.createElement(name);
+  }
+
+  function append(target, node) {
+    target.appendChild(node);
+  }
+
+  function blankObject() {
+    return Object.create(null);
+  }
+
+  function createText(data) {
+    return document.createTextNode(data);
+  }
+
+  function setAttribute(node, attribute, value) {
+    if (value == null) node.removeAttribute(attribute);else node.setAttribute(attribute, value);
+  }
+
+  function addListener(node, event, handler, options) {
+    node.addEventListener(event, handler, options);
+  }
+
+  function insert(target, node, anchor) {
+    target.insertBefore(node, anchor);
+  }
+
+  function updateKeyedEach(old_blocks, component, changed, get_key, dynamic, ctx, list, lookup, node, destroy, create_each_block, intro_method, next, get_context) {
+    var o = old_blocks.length;
+    var n = list.length;
+
+    var i = o;
+    var old_indexes = {};
+    while (i--) {
+      old_indexes[old_blocks[i].key] = i;
+    }var new_blocks = [];
+    var new_lookup = {};
+    var deltas = {};
+
+    var i = n;
+    while (i--) {
+      var child_ctx = get_context(ctx, list, i);
+      var key = get_key(child_ctx);
+      var block = lookup[key];
+
+      if (!block) {
+        block = create_each_block(component, key, child_ctx);
+        block.c();
+      } else if (dynamic) {
+        block.p(changed, child_ctx);
+      }
+
+      new_blocks[i] = new_lookup[key] = block;
+
+      if (key in old_indexes) deltas[key] = Math.abs(i - old_indexes[key]);
+    }
+
+    var will_move = {};
+    var did_move = {};
+
+    function insert(block) {
+      block[intro_method](node, next);
+      lookup[block.key] = block;
+      next = block.first;
+      n--;
+    }
+
+    while (o && n) {
+      var new_block = new_blocks[n - 1];
+      var old_block = old_blocks[o - 1];
+      var new_key = new_block.key;
+      var old_key = old_block.key;
+
+      if (new_block === old_block) {
+        // do nothing
+        next = new_block.first;
+        o--;
+        n--;
+      } else if (!new_lookup[old_key]) {
+        // remove old block
+        destroy(old_block, lookup);
+        o--;
+      } else if (!lookup[new_key] || will_move[new_key]) {
+        insert(new_block);
+      } else if (did_move[old_key]) {
+        o--;
+      } else if (deltas[new_key] > deltas[old_key]) {
+        did_move[new_key] = true;
+        insert(new_block);
+      } else {
+        will_move[old_key] = true;
+        o--;
+      }
+    }
+
+    while (o--) {
+      var old_block = old_blocks[o];
+      if (!new_lookup[old_block.key]) destroy(old_block, lookup);
+    }
+
+    while (n) {
+      insert(new_blocks[n - 1]);
+    }return new_blocks;
+  }
+
+  function destroyBlock(block, lookup) {
+    block.d(1);
+    lookup[block.key] = null;
+  }
+
+  function detachNode(node) {
+    node.parentNode.removeChild(node);
+  }
+
+  function removeListener(node, event, handler, options) {
+    node.removeEventListener(event, handler, options);
+  }
+
+  function createComment() {
+    return document.createComment('');
+  }
+
+  function setData(text, data) {
+    text.data = '' + data;
+  }
+
+  function detachBetween(before, after) {
+    while (before.nextSibling && before.nextSibling !== after) {
+      before.parentNode.removeChild(before.nextSibling);
+    }
+  }
+
+  function init(component, options) {
+    component._handlers = blankObject();
+    component._slots = blankObject();
+    component._bind = options._bind;
+    component._staged = {};
+
+    component.options = options;
+    component.root = options.root || component;
+    component.store = options.store || component.root.store;
+
+    if (!options.root) {
+      component._beforecreate = [];
+      component._oncreate = [];
+      component._aftercreate = [];
+    }
+  }
+
+  function assign(tar, src) {
+    for (var k in src) {
+      tar[k] = src[k];
+    }return tar;
+  }
+
+  function assignTrue(tar, src) {
+    for (var k in src) {
+      tar[k] = 1;
+    }return tar;
+  }
+
+  function flush(component) {
+    component._lock = true;
+    callAll(component._beforecreate);
+    callAll(component._oncreate);
+    callAll(component._aftercreate);
+    component._lock = false;
+  }
+
+  function destroy(detach) {
+    this.destroy = noop;
+    this.fire('destroy');
+    this.set = noop;
+
+    this._fragment.d(detach !== false);
+    this._fragment = null;
+    this._state = {};
+  }
+
+  function get() {
+    return this._state;
+  }
+
+  function fire(eventName, data) {
+    var handlers = eventName in this._handlers && this._handlers[eventName].slice();
+    if (!handlers) return;
+
+    for (var i = 0; i < handlers.length; i += 1) {
+      var handler = handlers[i];
+
+      if (!handler.__calling) {
+        try {
+          handler.__calling = true;
+          handler.call(this, data);
+        } finally {
+          handler.__calling = false;
+        }
+      }
+    }
+  }
+
+  function on(eventName, handler) {
+    var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+    handlers.push(handler);
+
+    return {
+      cancel: function cancel() {
+        var index = handlers.indexOf(handler);
+        if (~index) handlers.splice(index, 1);
+      }
+    };
+  }
+
+  function set(newState) {
+    this._set(assign({}, newState));
+    if (this.root._lock) return;
+    flush(this.root);
+  }
+
+  function _set(newState) {
+    var oldState = this._state,
+        changed = {},
+        dirty = false;
+
+    newState = assign(this._staged, newState);
+    this._staged = {};
+
+    for (var key in newState) {
+      if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true;
+    }
+    if (!dirty) return;
+
+    this._state = assign(assign({}, oldState), newState);
+    this._recompute(changed, this._state);
+    if (this._bind) this._bind(changed, this._state);
+
+    if (this._fragment) {
+      this.fire("state", { changed: changed, current: this._state, previous: oldState });
+      this._fragment.p(changed, this._state);
+      this.fire("update", { changed: changed, current: this._state, previous: oldState });
+    }
+  }
+
+  function _stage(newState) {
+    assign(this._staged, newState);
+  }
+
+  function _mount(target, anchor) {
+    this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null);
+  }
+
+  function _differs(a, b) {
+    return a != a ? b == b : a !== b || a && (typeof a === "undefined" ? "undefined" : _typeof(a)) === 'object' || typeof a === 'function';
+  }
+
+  function callAll(fns) {
+    while (fns && fns.length) {
+      fns.shift()();
+    }
+  }
+
+  function noop() {}
+
+  return PNotify_1;
+});
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/* src/PNotifyButtons.html generated by Svelte v2.16.1 */
+(function (global, factory) {
+	(typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object" && typeof module !== "undefined" ? module.exports = factory(require('./PNotify')) : typeof define === "function" && define.amd ? define('PNotifyButtons', ["./PNotify"], factory) : global.PNotifyButtons = factory(PNotify);
+})(this, function (PNotify) {
+	"use strict";
+
+	PNotify = PNotify && PNotify.__esModule ? PNotify["default"] : PNotify;
+
+	function _showSticker(_ref) {
+		var sticker = _ref.sticker,
+		    _notice = _ref._notice;
+
+		return sticker && !(_notice && _notice.refs.elem.classList.contains('nonblock'));
+	}
+
+	function _showCloser(_ref2) {
+		var closer = _ref2.closer,
+		    _notice = _ref2._notice;
+
+		return closer && !(_notice && _notice.refs.elem.classList.contains('nonblock'));
+	}
+
+	function _pinUpClass(_ref3) {
+		var classes = _ref3.classes,
+		    _notice = _ref3._notice;
+
+		return _notice ? classes.pinUp === null ? _notice.get()._icons.pinUp : classes.pinUp : '';
+	}
+
+	function _pinDownClass(_ref4) {
+		var classes = _ref4.classes,
+		    _notice = _ref4._notice;
+
+		return _notice ? classes.pinDown === null ? _notice.get()._icons.pinDown : classes.pinDown : '';
+	}
+
+	function _closerClass(_ref5) {
+		var classes = _ref5.classes,
+		    _notice = _ref5._notice;
+
+		return _notice ? classes.closer === null ? _notice.get()._icons.closer : classes.closer : '';
+	}
+
+	function data() {
+		return _extends({
+			'_notice': null, // The PNotify notice.
+			'_options': {}, // The options for the notice.
+			'_mouseIsIn': false
+		}, PNotify.modules.Buttons.defaults);
+	};
+
+	var methods = {
+		initModule: function initModule(options) {
+			var _this = this;
+
+			this.set(options);
+
+			var _get = this.get(),
+			    _notice = _get._notice;
+
+			_notice.on('mouseenter', function () {
+				return _this.set({ '_mouseIsIn': true });
+			});
+			_notice.on('mouseleave', function () {
+				return _this.set({ '_mouseIsIn': false });
+			});
+			_notice.on('state', function (_ref6) {
+				var changed = _ref6.changed,
+				    current = _ref6.current;
+
+				if (!changed.hide) {
+					return;
+				}
+
+				var _get2 = _this.get(),
+				    sticker = _get2.sticker;
+
+				if (!sticker) {
+					return;
+				}
+
+				// Font Awesome 5 replaces our lovely element with a gross SVG. In
+				// order to make it play nice with Svelte, we have to clear the
+				// element and make it again.
+				var icon = current.hide ? _this.get().classes.pinUp : _this.get().classes.pinDown;
+				if (_this.get()._notice.get().icons === 'fontawesome5' || typeof icon === 'string' && icon.match(/(^| )fa[srlb]($| )/)) {
+					_this.set({ 'sticker': false });
+					_this.set({ 'sticker': true });
+				}
+			});
+		},
+		handleStickerClick: function handleStickerClick() {
+			var _get3 = this.get(),
+			    _notice = _get3._notice;
+
+			_notice.update({ hide: !_notice.get().hide });
+		},
+		handleCloserClick: function handleCloserClick() {
+			this.get()._notice.close(false);
+			this.set({ '_mouseIsIn': false });
+		}
+	};
+
+	function oncreate() {
+		this.fire('init', { module: this });
+	};
+
+	function setup(Component) {
+		Component.key = 'Buttons';
+
+		Component.defaults = {
+			// Provide a button for the user to manually close the notice.
+			closer: true,
+			// Only show the closer button on hover.
+			closerHover: true,
+			// Provide a button for the user to manually stick the notice.
+			sticker: true,
+			// Only show the sticker button on hover.
+			stickerHover: true,
+			// The various displayed text, helps facilitating internationalization.
+			labels: {
+				close: 'Close',
+				stick: 'Stick',
+				unstick: 'Unstick'
+			},
+			// The classes to use for button icons. Leave them null to use the classes from the styling you're using.
+			classes: {
+				closer: null,
+				pinUp: null,
+				pinDown: null
+			}
+		};
+
+		// Register the module with PNotify.
+		PNotify.modules.Buttons = Component;
+		// Prepend this module to the container.
+		PNotify.modulesPrependContainer.push(Component);
+
+		// Add button icons to icons objects.
+		_extends(PNotify.icons.brighttheme, {
+			closer: 'brighttheme-icon-closer',
+			pinUp: 'brighttheme-icon-sticker',
+			pinDown: 'brighttheme-icon-sticker brighttheme-icon-stuck'
+		});
+		_extends(PNotify.icons.bootstrap3, {
+			closer: 'glyphicon glyphicon-remove',
+			pinUp: 'glyphicon glyphicon-pause',
+			pinDown: 'glyphicon glyphicon-play'
+		});
+		_extends(PNotify.icons.fontawesome4, {
+			closer: 'fa fa-times',
+			pinUp: 'fa fa-pause',
+			pinDown: 'fa fa-play'
+		});
+		_extends(PNotify.icons.fontawesome5, {
+			closer: 'fas fa-times',
+			pinUp: 'fas fa-pause',
+			pinDown: 'fas fa-play'
+		});
+	};
+
+	function add_css() {
+		var style = createElement("style");
+		style.id = 'svelte-1yjle82-style';
+		style.textContent = ".ui-pnotify-closer.svelte-1yjle82,.ui-pnotify-sticker.svelte-1yjle82{float:right;margin-left:.5em;cursor:pointer}[dir=rtl] .ui-pnotify-closer.svelte-1yjle82,[dir=rtl] .ui-pnotify-sticker.svelte-1yjle82{float:left;margin-right:.5em;margin-left:0}.ui-pnotify-buttons-hidden.svelte-1yjle82{visibility:hidden}";
+		append(document.head, style);
+	}
+
+	function create_main_fragment(component, ctx) {
+		var text, if_block1_anchor;
+
+		var if_block0 = ctx._showCloser && create_if_block_1(component, ctx);
+
+		var if_block1 = ctx._showSticker && create_if_block(component, ctx);
+
+		return {
+			c: function c() {
+				if (if_block0) if_block0.c();
+				text = createText("\n");
+				if (if_block1) if_block1.c();
+				if_block1_anchor = createComment();
+			},
+			m: function m(target, anchor) {
+				if (if_block0) if_block0.m(target, anchor);
+				insert(target, text, anchor);
+				if (if_block1) if_block1.m(target, anchor);
+				insert(target, if_block1_anchor, anchor);
+			},
+			p: function p(changed, ctx) {
+				if (ctx._showCloser) {
+					if (if_block0) {
+						if_block0.p(changed, ctx);
+					} else {
+						if_block0 = create_if_block_1(component, ctx);
+						if_block0.c();
+						if_block0.m(text.parentNode, text);
+					}
+				} else if (if_block0) {
+					if_block0.d(1);
+					if_block0 = null;
+				}
+
+				if (ctx._showSticker) {
+					if (if_block1) {
+						if_block1.p(changed, ctx);
+					} else {
+						if_block1 = create_if_block(component, ctx);
+						if_block1.c();
+						if_block1.m(if_block1_anchor.parentNode, if_block1_anchor);
+					}
+				} else if (if_block1) {
+					if_block1.d(1);
+					if_block1 = null;
+				}
+			},
+			d: function d(detach) {
+				if (if_block0) if_block0.d(detach);
+				if (detach) {
+					detachNode(text);
+				}
+
+				if (if_block1) if_block1.d(detach);
+				if (detach) {
+					detachNode(if_block1_anchor);
+				}
+			}
+		};
+	}
+
+	// (1:0) {#if _showCloser}
+	function create_if_block_1(component, ctx) {
+		var div, span, div_class_value, div_title_value;
+
+		function click_handler(event) {
+			component.handleCloserClick();
+		}
+
+		return {
+			c: function c() {
+				div = createElement("div");
+				span = createElement("span");
+				span.className = "" + ctx._closerClass + " svelte-1yjle82";
+				addListener(div, "click", click_handler);
+				div.className = div_class_value = "ui-pnotify-closer " + (!ctx.closerHover || ctx._mouseIsIn ? '' : 'ui-pnotify-buttons-hidden') + " svelte-1yjle82";
+				setAttribute(div, "role", "button");
+				div.tabIndex = "0";
+				div.title = div_title_value = ctx.labels.close;
+			},
+			m: function m(target, anchor) {
+				insert(target, div, anchor);
+				append(div, span);
+			},
+			p: function p(changed, ctx) {
+				if (changed._closerClass) {
+					span.className = "" + ctx._closerClass + " svelte-1yjle82";
+				}
+
+				if ((changed.closerHover || changed._mouseIsIn) && div_class_value !== (div_class_value = "ui-pnotify-closer " + (!ctx.closerHover || ctx._mouseIsIn ? '' : 'ui-pnotify-buttons-hidden') + " svelte-1yjle82")) {
+					div.className = div_class_value;
+				}
+
+				if (changed.labels && div_title_value !== (div_title_value = ctx.labels.close)) {
+					div.title = div_title_value;
+				}
+			},
+			d: function d(detach) {
+				if (detach) {
+					detachNode(div);
+				}
+
+				removeListener(div, "click", click_handler);
+			}
+		};
+	}
+
+	// (11:0) {#if _showSticker}
+	function create_if_block(component, ctx) {
+		var div, span, span_class_value, div_class_value, div_aria_pressed_value, div_title_value;
+
+		function click_handler(event) {
+			component.handleStickerClick();
+		}
+
+		return {
+			c: function c() {
+				div = createElement("div");
+				span = createElement("span");
+				span.className = span_class_value = "" + (ctx._options.hide ? ctx._pinUpClass : ctx._pinDownClass) + " svelte-1yjle82";
+				addListener(div, "click", click_handler);
+				div.className = div_class_value = "ui-pnotify-sticker " + (!ctx.stickerHover || ctx._mouseIsIn ? '' : 'ui-pnotify-buttons-hidden') + " svelte-1yjle82";
+				setAttribute(div, "role", "button");
+				setAttribute(div, "aria-pressed", div_aria_pressed_value = ctx._options.hide);
+				div.tabIndex = "0";
+				div.title = div_title_value = ctx._options.hide ? ctx.labels.stick : ctx.labels.unstick;
+			},
+			m: function m(target, anchor) {
+				insert(target, div, anchor);
+				append(div, span);
+			},
+			p: function p(changed, ctx) {
+				if ((changed._options || changed._pinUpClass || changed._pinDownClass) && span_class_value !== (span_class_value = "" + (ctx._options.hide ? ctx._pinUpClass : ctx._pinDownClass) + " svelte-1yjle82")) {
+					span.className = span_class_value;
+				}
+
+				if ((changed.stickerHover || changed._mouseIsIn) && div_class_value !== (div_class_value = "ui-pnotify-sticker " + (!ctx.stickerHover || ctx._mouseIsIn ? '' : 'ui-pnotify-buttons-hidden') + " svelte-1yjle82")) {
+					div.className = div_class_value;
+				}
+
+				if (changed._options && div_aria_pressed_value !== (div_aria_pressed_value = ctx._options.hide)) {
+					setAttribute(div, "aria-pressed", div_aria_pressed_value);
+				}
+
+				if ((changed._options || changed.labels) && div_title_value !== (div_title_value = ctx._options.hide ? ctx.labels.stick : ctx.labels.unstick)) {
+					div.title = div_title_value;
+				}
+			},
+			d: function d(detach) {
+				if (detach) {
+					detachNode(div);
+				}
+
+				removeListener(div, "click", click_handler);
+			}
+		};
+	}
+
+	function PNotifyButtons(options) {
+		var _this2 = this;
+
+		init(this, options);
+		this._state = assign(data(), options.data);
+
+		this._recompute({ sticker: 1, _notice: 1, closer: 1, classes: 1 }, this._state);
+		this._intro = true;
+
+		if (!document.getElementById("svelte-1yjle82-style")) add_css();
+
+		this._fragment = create_main_fragment(this, this._state);
+
+		this.root._oncreate.push(function () {
+			oncreate.call(_this2);
+			_this2.fire("update", { changed: assignTrue({}, _this2._state), current: _this2._state });
+		});
+
+		if (options.target) {
+			this._fragment.c();
+			this._mount(options.target, options.anchor);
+
+			flush(this);
+		}
+	}
+
+	assign(PNotifyButtons.prototype, {
+		destroy: destroy,
+		get: get,
+		fire: fire,
+		on: on,
+		set: set,
+		_set: _set,
+		_stage: _stage,
+		_mount: _mount,
+		_differs: _differs
+	});
+	assign(PNotifyButtons.prototype, methods);
+
+	PNotifyButtons.prototype._recompute = function _recompute(changed, state) {
+		if (changed.sticker || changed._notice) {
+			if (this._differs(state._showSticker, state._showSticker = _showSticker(state))) changed._showSticker = true;
+		}
+
+		if (changed.closer || changed._notice) {
+			if (this._differs(state._showCloser, state._showCloser = _showCloser(state))) changed._showCloser = true;
+		}
+
+		if (changed.classes || changed._notice) {
+			if (this._differs(state._pinUpClass, state._pinUpClass = _pinUpClass(state))) changed._pinUpClass = true;
+			if (this._differs(state._pinDownClass, state._pinDownClass = _pinDownClass(state))) changed._pinDownClass = true;
+			if (this._differs(state._closerClass, state._closerClass = _closerClass(state))) changed._closerClass = true;
+		}
+	};
+
+	setup(PNotifyButtons);
+
+	function createElement(name) {
+		return document.createElement(name);
+	}
+
+	function append(target, node) {
+		target.appendChild(node);
+	}
+
+	function createText(data) {
+		return document.createTextNode(data);
+	}
+
+	function createComment() {
+		return document.createComment('');
+	}
+
+	function insert(target, node, anchor) {
+		target.insertBefore(node, anchor);
+	}
+
+	function detachNode(node) {
+		node.parentNode.removeChild(node);
+	}
+
+	function addListener(node, event, handler, options) {
+		node.addEventListener(event, handler, options);
+	}
+
+	function setAttribute(node, attribute, value) {
+		if (value == null) node.removeAttribute(attribute);else node.setAttribute(attribute, value);
+	}
+
+	function removeListener(node, event, handler, options) {
+		node.removeEventListener(event, handler, options);
+	}
+
+	function init(component, options) {
+		component._handlers = blankObject();
+		component._slots = blankObject();
+		component._bind = options._bind;
+		component._staged = {};
+
+		component.options = options;
+		component.root = options.root || component;
+		component.store = options.store || component.root.store;
+
+		if (!options.root) {
+			component._beforecreate = [];
+			component._oncreate = [];
+			component._aftercreate = [];
+		}
+	}
+
+	function assign(tar, src) {
+		for (var k in src) {
+			tar[k] = src[k];
+		}return tar;
+	}
+
+	function assignTrue(tar, src) {
+		for (var k in src) {
+			tar[k] = 1;
+		}return tar;
+	}
+
+	function flush(component) {
+		component._lock = true;
+		callAll(component._beforecreate);
+		callAll(component._oncreate);
+		callAll(component._aftercreate);
+		component._lock = false;
+	}
+
+	function destroy(detach) {
+		this.destroy = noop;
+		this.fire('destroy');
+		this.set = noop;
+
+		this._fragment.d(detach !== false);
+		this._fragment = null;
+		this._state = {};
+	}
+
+	function get() {
+		return this._state;
+	}
+
+	function fire(eventName, data) {
+		var handlers = eventName in this._handlers && this._handlers[eventName].slice();
+		if (!handlers) return;
+
+		for (var i = 0; i < handlers.length; i += 1) {
+			var handler = handlers[i];
+
+			if (!handler.__calling) {
+				try {
+					handler.__calling = true;
+					handler.call(this, data);
+				} finally {
+					handler.__calling = false;
+				}
+			}
+		}
+	}
+
+	function on(eventName, handler) {
+		var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+		handlers.push(handler);
+
+		return {
+			cancel: function cancel() {
+				var index = handlers.indexOf(handler);
+				if (~index) handlers.splice(index, 1);
+			}
+		};
+	}
+
+	function set(newState) {
+		this._set(assign({}, newState));
+		if (this.root._lock) return;
+		flush(this.root);
+	}
+
+	function _set(newState) {
+		var oldState = this._state,
+		    changed = {},
+		    dirty = false;
+
+		newState = assign(this._staged, newState);
+		this._staged = {};
+
+		for (var key in newState) {
+			if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true;
+		}
+		if (!dirty) return;
+
+		this._state = assign(assign({}, oldState), newState);
+		this._recompute(changed, this._state);
+		if (this._bind) this._bind(changed, this._state);
+
+		if (this._fragment) {
+			this.fire("state", { changed: changed, current: this._state, previous: oldState });
+			this._fragment.p(changed, this._state);
+			this.fire("update", { changed: changed, current: this._state, previous: oldState });
+		}
+	}
+
+	function _stage(newState) {
+		assign(this._staged, newState);
+	}
+
+	function _mount(target, anchor) {
+		this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null);
+	}
+
+	function _differs(a, b) {
+		return a != a ? b == b : a !== b || a && (typeof a === "undefined" ? "undefined" : _typeof(a)) === 'object' || typeof a === 'function';
+	}
+
+	function blankObject() {
+		return Object.create(null);
+	}
+
+	function callAll(fns) {
+		while (fns && fns.length) {
+			fns.shift()();
+		}
+	}
+
+	function noop() {}
+
+	return PNotifyButtons;
+});
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/* src/PNotifyCallbacks.html generated by Svelte v2.16.1 */
+(function (global, factory) {
+	(typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object" && typeof module !== "undefined" ? module.exports = factory(require('./PNotify')) : typeof define === "function" && define.amd ? define('PNotifyCallbacks', ["./PNotify"], factory) : global.PNotifyCallbacks = factory(PNotify);
+})(this, function (PNotify) {
+	"use strict";
+
+	PNotify = PNotify && PNotify.__esModule ? PNotify["default"] : PNotify;
+
+	var _open = PNotify.prototype.open;
+	var _close = PNotify.prototype.close;
+
+	var callbacks = function callbacks(notice, options, name) {
+		var modules = notice ? notice.get().modules : options.modules;
+		var cbs = modules && modules.Callbacks ? modules.Callbacks : {};
+		return cbs[name] ? cbs[name] : function () {
+			return true;
+		};
+	};
+
+	PNotify.prototype.open = function () {
+		var ret = callbacks(this, null, 'beforeOpen')(this);
+		if (ret !== false) {
+			for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+				args[_key] = arguments[_key];
+			}
+
+			_open.apply(this, args);
+			callbacks(this, null, 'afterOpen')(this);
+		}
+	};
+
+	PNotify.prototype.close = function (timerHide) {
+		var ret = callbacks(this, null, 'beforeClose')(this, timerHide);
+		if (ret !== false) {
+			for (var _len2 = arguments.length, args = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+				args[_key2 - 1] = arguments[_key2];
+			}
+
+			_close.apply(this, [timerHide].concat(args));
+			callbacks(this, null, 'afterClose')(this, timerHide);
+		}
+	};
+
+	function setup(Component) {
+		Component.key = 'Callbacks';
+
+		Component.getCallbacks = callbacks;
+
+		var _alert = PNotify.alert;
+		var _notice = PNotify.notice;
+		var _info = PNotify.info;
+		var _success = PNotify.success;
+		var _error = PNotify.error;
+
+		var init = function init(original, options) {
+			callbacks(null, options, 'beforeInit')(options);
+			var notice = original(options);
+			callbacks(notice, null, 'afterInit')(notice);
+			return notice;
+		};
+
+		PNotify.alert = function (options) {
+			return init(_alert, options);
+		};
+		PNotify.notice = function (options) {
+			return init(_notice, options);
+		};
+		PNotify.info = function (options) {
+			return init(_info, options);
+		};
+		PNotify.success = function (options) {
+			return init(_success, options);
+		};
+		PNotify.error = function (options) {
+			return init(_error, options);
+		};
+
+		// Register the module with PNotify.
+		PNotify.modules.Callbacks = Component;
+	};
+
+	function create_main_fragment(component, ctx) {
+
+		return {
+			c: noop,
+
+			m: noop,
+
+			p: noop,
+
+			d: noop
+		};
+	}
+
+	function PNotifyCallbacks(options) {
+		init(this, options);
+		this._state = assign({}, options.data);
+		this._intro = true;
+
+		this._fragment = create_main_fragment(this, this._state);
+
+		if (options.target) {
+			this._fragment.c();
+			this._mount(options.target, options.anchor);
+		}
+	}
+
+	assign(PNotifyCallbacks.prototype, {
+		destroy: destroy,
+		get: get,
+		fire: fire,
+		on: on,
+		set: set,
+		_set: _set,
+		_stage: _stage,
+		_mount: _mount,
+		_differs: _differs
+	});
+
+	PNotifyCallbacks.prototype._recompute = noop;
+
+	setup(PNotifyCallbacks);
+
+	function noop() {}
+
+	function init(component, options) {
+		component._handlers = blankObject();
+		component._slots = blankObject();
+		component._bind = options._bind;
+		component._staged = {};
+
+		component.options = options;
+		component.root = options.root || component;
+		component.store = options.store || component.root.store;
+
+		if (!options.root) {
+			component._beforecreate = [];
+			component._oncreate = [];
+			component._aftercreate = [];
+		}
+	}
+
+	function assign(tar, src) {
+		for (var k in src) {
+			tar[k] = src[k];
+		}return tar;
+	}
+
+	function destroy(detach) {
+		this.destroy = noop;
+		this.fire('destroy');
+		this.set = noop;
+
+		this._fragment.d(detach !== false);
+		this._fragment = null;
+		this._state = {};
+	}
+
+	function get() {
+		return this._state;
+	}
+
+	function fire(eventName, data) {
+		var handlers = eventName in this._handlers && this._handlers[eventName].slice();
+		if (!handlers) return;
+
+		for (var i = 0; i < handlers.length; i += 1) {
+			var handler = handlers[i];
+
+			if (!handler.__calling) {
+				try {
+					handler.__calling = true;
+					handler.call(this, data);
+				} finally {
+					handler.__calling = false;
+				}
+			}
+		}
+	}
+
+	function on(eventName, handler) {
+		var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+		handlers.push(handler);
+
+		return {
+			cancel: function cancel() {
+				var index = handlers.indexOf(handler);
+				if (~index) handlers.splice(index, 1);
+			}
+		};
+	}
+
+	function set(newState) {
+		this._set(assign({}, newState));
+		if (this.root._lock) return;
+		flush(this.root);
+	}
+
+	function _set(newState) {
+		var oldState = this._state,
+		    changed = {},
+		    dirty = false;
+
+		newState = assign(this._staged, newState);
+		this._staged = {};
+
+		for (var key in newState) {
+			if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true;
+		}
+		if (!dirty) return;
+
+		this._state = assign(assign({}, oldState), newState);
+		this._recompute(changed, this._state);
+		if (this._bind) this._bind(changed, this._state);
+
+		if (this._fragment) {
+			this.fire("state", { changed: changed, current: this._state, previous: oldState });
+			this._fragment.p(changed, this._state);
+			this.fire("update", { changed: changed, current: this._state, previous: oldState });
+		}
+	}
+
+	function _stage(newState) {
+		assign(this._staged, newState);
+	}
+
+	function _mount(target, anchor) {
+		this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null);
+	}
+
+	function _differs(a, b) {
+		return a != a ? b == b : a !== b || a && (typeof a === "undefined" ? "undefined" : _typeof(a)) === 'object' || typeof a === 'function';
+	}
+
+	function blankObject() {
+		return Object.create(null);
+	}
+
+	function flush(component) {
+		component._lock = true;
+		callAll(component._beforecreate);
+		callAll(component._oncreate);
+		callAll(component._aftercreate);
+		component._lock = false;
+	}
+
+	function callAll(fns) {
+		while (fns && fns.length) {
+			fns.shift()();
+		}
+	}
+
+	return PNotifyCallbacks;
+});
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+/* src/PNotifyDesktop.html generated by Svelte v2.16.1 */
+(function (global, factory) {
+  (typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object" && typeof module !== "undefined" ? module.exports = factory(require('./PNotify')) : typeof define === "function" && define.amd ? define('PNotifyDesktop', ["./PNotify"], factory) : global.PNotifyDesktop = factory(PNotify);
+})(this, function (PNotify) {
+  "use strict";
+
+  PNotify = PNotify && PNotify.__esModule ? PNotify["default"] : PNotify;
+
+  var permission = void 0;
+  var Notification = window.Notification;
+
+  var _notify = function notify(title, options, onclick, onclose) {
+    // Memoize based on feature detection.
+    if ('Notification' in window) {
+      _notify = function notify(title, options, onclick, onclose) {
+        var notice = new Notification(title, options);
+        if ('NotificationEvent' in window) {
+          notice.addEventListener('notificationclick', onclick);
+          notice.addEventListener('close', onclose);
+        } else if ('addEventListener' in notice) {
+          notice.addEventListener('click', onclick);
+          notice.addEventListener('close', onclose);
+        } else {
+          notice.onclick = onclick;
+          notice.onclose = onclose;
+        }
+        return notice;
+      };
+    } else if ('mozNotification' in navigator) {
+      _notify = function notify(title, options, onclick, onclose) {
+        // Gecko < 22
+        var notice = navigator.mozNotification.createNotification(title, options.body, options.icon).show();
+        notice.onclick = onclick;
+        notice.onclose = onclose;
+        return notice;
+      };
+    } else if ('webkitNotifications' in window) {
+      _notify = function notify(title, options, onclick, onclose) {
+        var notice = window.webkitNotifications.createNotification(options.icon, title, options.body);
+        notice.onclick = onclick;
+        notice.onclose = onclose;
+        return notice;
+      };
+    } else {
+      _notify = function notify(title, options, onclick, onclose) {
+        return null;
+      };
+    }
+    return _notify(title, options, onclick, onclose);
+  };
+
+  function data() {
+    return _extends({
+      '_notice': null, // The PNotify notice.
+      '_options': {} // The options for the notice.
+    }, PNotify.modules.Desktop.defaults);
+  };
+
+  var methods = {
+    initModule: function initModule(options) {
+      var _this = this;
+
+      this.set(options);
+
+      var _get = this.get(),
+          _notice = _get._notice;
+
+      // Animation should always be 'none' for desktop notices, but remember
+      // the old animation so it can be recovered.
+
+
+      this.set({ '_oldAnimation': _notice.get().animation });
+      _notice.on('state', function (_ref) {
+        var changed = _ref.changed,
+            current = _ref.current,
+            previous = _ref.previous;
+
+        if (changed.animation) {
+          if (previous.animation === undefined || current.animation !== 'none' || previous.animation === 'none' && current.animation !== _this.get()._oldAnimation) {
+            _this.set({ '_oldAnimation': current.animation });
+          }
+        }
+
+        // This is necessary so desktop notices don't cause spacing problems
+        // when positioning.
+        if (changed._animatingClass) {
+          if (!(current._animatingClass === '' || permission !== 0 && _this.get().fallback || !_this.get().desktop)) {
+            _notice.set({ '_animatingClass': '' });
+          }
+        }
+      });
+
+      if (!this.get().desktop) {
+        return;
+      }
+
+      permission = PNotify.modules.Desktop.checkPermission();
+      if (permission !== 0) {
+        // Keep the notice from opening if fallback is false.
+        if (!this.get().fallback) {
+          _notice.set({ 'autoDisplay': false });
+        }
+        return;
+      }
+
+      _notice.set({ 'animation': 'none' });
+      _notice.addModuleClass('ui-pnotify-desktop-hide');
+
+      this.genNotice();
+    },
+    update: function update() {
+      var _get2 = this.get(),
+          _notice = _get2._notice;
+
+      if (permission !== 0 && this.get().fallback || !this.get().desktop) {
+        _notice.set({ 'animation': this.get()._oldAnimation });
+        _notice.removeModuleClass('ui-pnotify-desktop-hide');
+        return;
+      } else {
+        _notice.set({ 'animation': 'none' });
+        _notice.addModuleClass('ui-pnotify-desktop-hide');
+      }
+      this.genNotice();
+    },
+    beforeOpen: function beforeOpen() {
+      if (this.get().desktop && permission !== 0) {
+        PNotify.modules.Desktop.permission();
+      }
+      if (permission !== 0 && this.get().fallback || !this.get().desktop) {
+        return;
+      }
+
+      var _get3 = this.get(),
+          _desktop = _get3._desktop;
+
+      if (_desktop && 'show' in _desktop) {
+        this.get()._notice.set({ '_moduleIsNoticeOpen': true });
+        _desktop.show();
+      }
+    },
+    beforeClose: function beforeClose() {
+      if (permission !== 0 && this.get().fallback || !this.get().desktop) {
+        return;
+      }
+
+      var _get4 = this.get(),
+          _desktop = _get4._desktop;
+
+      if (_desktop && 'close' in _desktop) {
+        _desktop.close();
+        this.get()._notice.set({ '_moduleIsNoticeOpen': false });
+      }
+    },
+    genNotice: function genNotice() {
+      var _get5 = this.get(),
+          _notice = _get5._notice,
+          icon = _get5.icon;
+
+      if (icon === null) {
+        switch (_notice.get().type) {
+          case 'error':
+            this.set({ '_icon': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQg7e6HvQAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAABr0lEQVRYw8WXu0oDQRSGv7hRSFYrLTTWKihaqUgUJO+gphBLL1jYpPSCVcAggpWthYhC7Ows9An0IbSPkMRCw8ZmFuI6yczs9cAPuzNz5v92brtrESxGARtokkCcAg2hk7jNl4G2R/m4zFPAiwTgWdRFHnmJuaulOAAaPQDqUZvv9DB3tR0lwIcGwHtU5uca5q4qYZvngJbHpAZ8CtU8dS1gLEyAisegBGTFKWiL65KnzVlY5uOSId6VtNuTtMupOu/TAHiQlNmSskHNXCOAGWBeUp7VhFoApoMAXAOWJoCszBJ9+ALY6vL0JiPgjsKmKUAaOOoBZwIAcNxlJLsCrAOTIQJMAWu62y4LOIqT7lGS96TIcYCMDkBZ46h1gB+PHI28ssq8X/G6DaqG8Piz2DrjVjGXbtSBy46F5QAHwJAizwZugKKscs7gSaqS/KpB/qxsFxwafhf6Odb/eblJi8BGwJdW26BtURxQpMU83hmaDQsNiPtvYMSwj3tgAqDgYzU7wJdHjo9+CgBvEW47lV5Tgj5DMtG0xIfESkIAF+522gdWxTzGEX3i9+6KpOMXF5UBt0NKJCAAAAAASUVORK5CYII=' });
+            break;
+          case 'success':
+            this.set({ '_icon': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQPRj+65AAAAdBJREFUWMPtlzsvRFEQx3+7HmEjoiYKolVJJDRqnS8ggvVIVEQhCIUsEYJGCEH2E4h4FPREaLTbEo1IEJXHrmY2GTf33nPuY7ud5OTenTMz//89Z86ZWShLWf5LB3AOfACFiOMF2AkC3qOc88BXxFEAxlX8ftGdaNCEen8H6oFHYBR4FocwkpTngzzHgF01fwL0aYcp9fVtMW/rsMcWXWijK1Hexgye9smRT6CxaHgjytMYwccNSXqoja9FeVbiZS+OVaeDiUBLAPAJA/i2m5MXgRSQk7llC/DBMOBeBGqAe0eAjQhfvurH3EmgQk6EW6CVEHt+ZFo6J4EU8OoTcF35jhnAl2wSx20LFgyB1yyOWtY2c72ScMAAkPeZy6g4zUBdGAIAcyEq4Z7y7xbdTFgCACMBwPVJqVDHeNqvaplkH5i0sNuUwmaNkQxww20ZSOy7gFvX7SAk0i76jPQQlJoAwAEwq35ngfmwVatSdUMArZZ+K9JQ1Bp6iGqgSt7f/AIOqSzujLEn6AV+JG6zm4HuCZ+AJuAbWAQu5aIJu7JDck0ngDugC/j1c2qPqR13jpxuvWyS8liY/kQcean/lX6ACQ99DdAQYe+Lf0zylMUgf7qDKgzv284QAAAAAElFTkSuQmCC' });
+            break;
+          case 'info':
+            this.set({ '_icon': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATQ09zRTwAAAAdxJREFUWMPtl88rRFEUxz8zBolRCgsrpOym8TMSO2WplLKwUrKi/B0W7JSFmhVLNlhSlLKx8CtRGpEsJpofpZk3Nkc9b968e++8mdlw6vTeu/edc773nl/3wl+ngOH/zUAf0AN0AmEgB7wCD8AtcFMJoM3ADpAHLHk62RIwL8B0uQwHgXVRnDfkS2DSj/EW4K0Ew05eLMV4O/CuUJwEUvJUgdgwMd4IpBUKl13kVG6aL+ZjJ20DDQqQXy5jKYVMDBhVrb5f069LLrKfGnInqh040HRTvsTAHgei9oGQ7X0YaNNUNCdFKChgQvKtQ1vAkNvEahlSToez9oXad2BCA30ceHZxRxMQMShuvZLmv+hOA32/h+KUwS7MugVhqwb6Go+5nEEwht0ABDUEzyXdFsrQYwqMJjTbdxio9Qkg6QbgvkpnkLw0uQIAZ1UCYNkXawdw4qPCmVBcuADAMZCpAoCVYr3AKtYyHZSWauakjMx50TWwrzJw6lFARjQOt3se8jM6W9TloSCqIb9bRHbN5Fg+KkEZcow/Ak+KFBsD6h3jR8CUabAMlqn7xfxEbAdwWKLhhO3sGPCbOsNSvSyF0Z/5TaCuEleziLhmAOiWG1NWrmZXwIVU1A/+SZO+AcgLC4wt0zD3AAAAAElFTkSuQmCC' });
+            break;
+          case 'notice':
+          default:
+            this.set({ '_icon': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3gQJATM4scOJLAAAAcxJREFUWMPtljtLA0EQx3+J0QRfnYqCiCA+MERBrIwgFtoFbMTOR61i5QcQBdEihZWNoEWwsNAvkMJeBLHRQtHC0iIP4utOmw2cx97d7l2SRgcGbufmv/Pf2dmdhb8uIR+YJqAPaBff30AeeAHuxLgqMgRkgS/AAEybGuLfEdBcycCTwKVYmY5mgO6gwdd8BLaqAST9Bs8EDG7VTd3gex4TbgEjwKjQOHDugZlRDb7sMZEJpCS4bYVMJOygsG1cB+wqHN0Gib1RYXFpLwL74nx7Sb3EFlXATQNjTgRagA3FbZIRiCliT5wITGgUaRACA0CPjMC4xtUcDUAgDAzLCCQ0MhALQCAE9MoIdGkQCJIBgE4ZgWiNMvDL10qgUMMMFGQEnjQmkLXbVg38s8y4qtFcTCAnHiJ5oKiJnSoHjVgIXAmHkGIl5yy+YcWruIy9dvqpupIDCfZWEXvh1gsWFVfxIbG9a3RbRwJnYiuqJYfAqxsBgBWFiQyJzfTAlIB1uzEicbwBFoBTl8lSwINoSuXKjrv4F4FBh61zlKUKvgn7/e5ZEngMEDgLdFSieHaAT42LpgTMVbqC24B54Bi4twV9E6cnDcw6PFj+RSo/l6rlSlldhx4AAAAASUVORK5CYII=' });
+            break;
+        }
+      } else if (icon === false) {
+        this.set({ '_icon': null });
+      } else {
+        this.set({ '_icon': icon });
+      }
+
+      var _get6 = this.get(),
+          tag = _get6.tag;
+
+      if (!this.get()._tag || tag !== null) {
+        this.set({
+          '_tag': tag === null ? 'PNotify-' + Math.round(Math.random() * 1000000) : tag
+        });
+      }
+
+      var options = {
+        body: this.get().text || _notice.get().text,
+        tag: this.get()._tag
+      };
+      if (!_notice.get().hide) {
+        options.requireInteraction = true;
+      }
+      if (this.get()._icon !== null) {
+        options.icon = this.get()._icon;
+      }
+      Object.apply(options, this.get().options);
+
+      var _desktop = _notify(this.get().title || _notice.get().title, options, function () {
+        _notice.fire('click', { target: _desktop });
+      }, function () {
+        _notice.close();
+      });
+
+      _notice.set({ '_moduleIsNoticeOpen': true });
+      this.set({ _desktop: _desktop });
+
+      if (!('close' in _desktop) && 'cancel' in _desktop) {
+        _desktop.close = function () {
+          _desktop.cancel();
+        };
+      }
+    }
+  };
+
+  function setup(Component) {
+    Component.key = 'Desktop';
+
+    Component.defaults = {
+      // Display the notification as a desktop notification.
+      desktop: false,
+      // If desktop notifications are not supported or allowed, fall back to a regular notice.
+      fallback: true,
+      // The URL of the icon to display. If false, no icon will show. If null, a default icon will show.
+      icon: null,
+      // Using a tag lets you update an existing notice, or keep from duplicating notices between tabs.
+      // If you leave tag null, one will be generated, facilitating the 'update' function.
+      // see: http://www.w3.org/TR/notifications/#tags-example
+      tag: null,
+      // Optionally display a different title for the desktop.
+      title: null,
+      // Optionally display different text for the desktop.
+      text: null,
+      // Any additional options to be passed to the Notification constructor.
+      options: {}
+    };
+
+    Component.init = function (notice) {
+      return new Component({ target: document.body });
+    };
+
+    Component.permission = function () {
+      if (typeof Notification !== 'undefined' && 'requestPermission' in Notification) {
+        Notification.requestPermission();
+      } else if ('webkitNotifications' in window) {
+        window.webkitNotifications.requestPermission();
+      }
+    };
+
+    Component.checkPermission = function () {
+      if (typeof Notification !== 'undefined' && 'permission' in Notification) {
+        return Notification.permission === 'granted' ? 0 : 1;
+      } else if ('webkitNotifications' in window) {
+        return window.webkitNotifications.checkPermission() == 0 ? 0 : 1; // eslint-disable-line eqeqeq
+      } else {
+        return 1;
+      }
+    };
+
+    permission = Component.checkPermission();
+
+    // Register the module with PNotify.
+    PNotify.modules.Desktop = Component;
+  };
+
+  function add_css() {
+    var style = createElement("style");
+    style.id = 'svelte-xbgnx4-style';
+    style.textContent = "[ui-pnotify].ui-pnotify-desktop-hide.ui-pnotify{left:-10000px !important;display:none !important}";
+    append(document.head, style);
+  }
+
+  function create_main_fragment(component, ctx) {
+
+    return {
+      c: noop,
+
+      m: noop,
+
+      p: noop,
+
+      d: noop
+    };
+  }
+
+  function PNotifyDesktop(options) {
+    init(this, options);
+    this._state = assign(data(), options.data);
+    this._intro = true;
+
+    if (!document.getElementById("svelte-xbgnx4-style")) add_css();
+
+    this._fragment = create_main_fragment(this, this._state);
+
+    if (options.target) {
+      this._fragment.c();
+      this._mount(options.target, options.anchor);
+    }
+  }
+
+  assign(PNotifyDesktop.prototype, {
+    destroy: destroy,
+    get: get,
+    fire: fire,
+    on: on,
+    set: set,
+    _set: _set,
+    _stage: _stage,
+    _mount: _mount,
+    _differs: _differs
+  });
+  assign(PNotifyDesktop.prototype, methods);
+
+  PNotifyDesktop.prototype._recompute = noop;
+
+  setup(PNotifyDesktop);
+
+  function createElement(name) {
+    return document.createElement(name);
+  }
+
+  function append(target, node) {
+    target.appendChild(node);
+  }
+
+  function noop() {}
+
+  function init(component, options) {
+    component._handlers = blankObject();
+    component._slots = blankObject();
+    component._bind = options._bind;
+    component._staged = {};
+
+    component.options = options;
+    component.root = options.root || component;
+    component.store = options.store || component.root.store;
+
+    if (!options.root) {
+      component._beforecreate = [];
+      component._oncreate = [];
+      component._aftercreate = [];
+    }
+  }
+
+  function assign(tar, src) {
+    for (var k in src) {
+      tar[k] = src[k];
+    }return tar;
+  }
+
+  function destroy(detach) {
+    this.destroy = noop;
+    this.fire('destroy');
+    this.set = noop;
+
+    this._fragment.d(detach !== false);
+    this._fragment = null;
+    this._state = {};
+  }
+
+  function get() {
+    return this._state;
+  }
+
+  function fire(eventName, data) {
+    var handlers = eventName in this._handlers && this._handlers[eventName].slice();
+    if (!handlers) return;
+
+    for (var i = 0; i < handlers.length; i += 1) {
+      var handler = handlers[i];
+
+      if (!handler.__calling) {
+        try {
+          handler.__calling = true;
+          handler.call(this, data);
+        } finally {
+          handler.__calling = false;
+        }
+      }
+    }
+  }
+
+  function on(eventName, handler) {
+    var handlers = this._handlers[eventName] || (this._handlers[eventName] = []);
+    handlers.push(handler);
+
+    return {
+      cancel: function cancel() {
+        var index = handlers.indexOf(handler);
+        if (~index) handlers.splice(index, 1);
+      }
+    };
+  }
+
+  function set(newState) {
+    this._set(assign({}, newState));
+    if (this.root._lock) return;
+    flush(this.root);
+  }
+
+  function _set(newState) {
+    var oldState = this._state,
+        changed = {},
+        dirty = false;
+
+    newState = assign(this._staged, newState);
+    this._staged = {};
+
+    for (var key in newState) {
+      if (this._differs(newState[key], oldState[key])) changed[key] = dirty = true;
+    }
+    if (!dirty) return;
+
+    this._state = assign(assign({}, oldState), newState);
+    this._recompute(changed, this._state);
+    if (this._bind) this._bind(changed, this._state);
+
+    if (this._fragment) {
+      this.fire("state", { changed: changed, current: this._state, previous: oldState });
+      this._fragment.p(changed, this._state);
+      this.fire("update", { changed: changed, current: this._state, previous: oldState });
+    }
+  }
+
+  function _stage(newState) {
+    assign(this._staged, newState);
+  }
+
+  function _mount(target, anchor) {
+    this._fragment[this._fragment.i ? 'i' : 'm'](target, anchor || null);
+  }
+
+  function _differs(a, b) {
+    return a != a ? b == b : a !== b || a && (typeof a === "undefined" ? "undefined" : _typeof(a)) === 'object' || typeof a === 'function';
+  }
+
+  function blankObject() {
+    return Object.create(null);
+  }
+
+  function flush(component) {
+    component._lock = true;
+    callAll(component._beforecreate);
+    callAll(component._oncreate);
+    callAll(component._aftercreate);
+    component._lock = false;
+  }
+
+  function callAll(fns) {
+    while (fns && fns.length) {
+      fns.shift()();
+    }
+  }
+
+  return PNotifyDesktop;
+});
+/**
+ * NonBlock.js
+ *
+ * Copyright (c) 2017-2018 Hunter Perrin
+ *
+ * @author Hunter Perrin <hperrin@gmail.com>
+ */
+
+
+((NonBlock) => {
+    window.NonBlockJs = {
+        NonBlock
+    };
+    if (document.body) {
+        window.NonBlockJs.nonBlock = new NonBlock(document.body);
+    } else {
+        document.addEventListener('DOMContentLoaded', () => {
+            window.NonBlockJs.nonBlock = new NonBlock(document.body);
+        });
+    }
+})((() => {
+    class NonBlock {
+        constructor(root, mode) {
+            this.root = root;
+
+            // Detect if we can use "pointer-events".
+            // Can't use document.documentElement.style because IE9/IE10 report true,
+            // but only support it on SVG elements, not HTML elements.
+            const windowStyle = window.getComputedStyle(document.body);
+            this.pointerEventsSupport = (windowStyle.pointerEvents && windowStyle.pointerEvents === 'auto');
+
+            // Some useful regexes.
+            this.regexOn = /^on/;
+            this.regexMouseEvents = /^(dbl)?click$|^mouse(move|down|up|over|out|enter|leave)$|^contextmenu$/;
+            this.regexUiEvents = /^(focus|blur|select|change|reset)$|^key(press|down|up)$/;
+            this.regexHtmlEvents = /^(scroll|resize|(un)?load|abort|error)$/;
+            // Whether to use event constructors.
+            this.useEventConstructors = true;
+            try {
+                const e = new MouseEvent('click');
+            } catch (e) {
+                this.useEventConstructors = false;
+            }
+
+            // If mode is not provided, use PointerEvents, if it's supported.
+            if (typeof mode === 'undefined') {
+                this.mode = this.pointerEventsSupport ? 'PointerEvents' : 'EventForwarding';
+            } else {
+                this.mode = mode;
+            }
+
+            // Init the current mode.
+            if (this['init'+this.mode]) {
+                this['init'+this.mode]();
+            }
+        }
+
+        initPointerEvents() {
+            // Using pointer-events, we can just detect whether an element is being
+            // hovered over. No event forwarding necessary.
+
+            this.addCSS(`.nonblock{transition:opacity .1s ease; pointer-events: none;}.nonblock:hover,.nonblock-hover{opacity:.1 !important;}`);
+
+            this.onmousemove = (ev) => {
+                const nonblocks = document.querySelectorAll('.nonblock');
+
+                for (let nonblock of nonblocks) {
+                    const rect = nonblock.getBoundingClientRect();
+                    if (ev.clientX >= rect.left && ev.clientX <= rect.right && ev.clientY >= rect.top && ev.clientY <= rect.bottom) {
+                        if (!nonblock.classList.contains('nonblock-hover')) {
+                            nonblock.classList.add('nonblock-hover');
+                            if (this.isSimulateMouse(nonblock) && ev.isTrusted) {
+                                this.domEvent(nonblock, 'onmouseenter', ev, false);
+                                this.domEvent(nonblock, 'onmouseover', ev, true);
+                            }
+                        } else if (this.isSimulateMouse(nonblock) && ev.isTrusted) {
+                            this.domEvent(nonblock, 'onmousemove', ev, true);
+                        }
+                    } else {
+                        if (nonblock.classList.contains('nonblock-hover')) {
+                            if (this.isSimulateMouse(nonblock) && ev.isTrusted) {
+                                this.domEvent(nonblock, 'onmouseout', ev, true);
+                                this.domEvent(nonblock, 'onmouseleave', ev, false);
+                            }
+                            nonblock.classList.remove('nonblock-hover');
+                        }
+                    }
+                }
+            };
+
+            this.root.addEventListener('mousemove', this.onmousemove);
+        }
+
+        initEventForwarding() {
+            // No pointer-events means we have to fall back to using event forwarding.
+
+            this.addCSS(`.nonblock{transition:opacity .1s ease;}
+.nonblock:hover{opacity:.1 !important;}
+.nonblock-hide{position:absolute !important;left:-10000000px !important;right:10000000px !important;}
+.nonblock-cursor-auto{cursor:auto !important;}
+.nonblock-cursor-default{cursor:default !important;}
+.nonblock-cursor-none{cursor:none !important;}
+.nonblock-cursor-context-menu{cursor:context-menu !important;}
+.nonblock-cursor-help{cursor:help !important;}
+.nonblock-cursor-pointer{cursor:pointer !important;}
+.nonblock-cursor-progress{cursor:progress !important;}
+.nonblock-cursor-wait{cursor:wait !important;}
+.nonblock-cursor-cell{cursor:cell !important;}
+.nonblock-cursor-crosshair{cursor:crosshair !important;}
+.nonblock-cursor-text{cursor:text !important;}
+.nonblock-cursor-vertical-text{cursor:vertical-text !important;}
+.nonblock-cursor-alias{cursor:alias !important;}
+.nonblock-cursor-copy{cursor:copy !important;}
+.nonblock-cursor-move{cursor:move !important;}
+.nonblock-cursor-no-drop{cursor:no-drop !important;}
+.nonblock-cursor-not-allowed{cursor:not-allowed !important;}
+.nonblock-cursor-all-scroll{cursor:all-scroll !important;}
+.nonblock-cursor-col-resize{cursor:col-resize !important;}
+.nonblock-cursor-row-resize{cursor:row-resize !important;}
+.nonblock-cursor-n-resize{cursor:n-resize !important;}
+.nonblock-cursor-e-resize{cursor:e-resize !important;}
+.nonblock-cursor-s-resize{cursor:s-resize !important;}
+.nonblock-cursor-w-resize{cursor:w-resize !important;}
+.nonblock-cursor-ne-resize{cursor:ne-resize !important;}
+.nonblock-cursor-nw-resize{cursor:nw-resize !important;}
+.nonblock-cursor-se-resize{cursor:se-resize !important;}
+.nonblock-cursor-sw-resize{cursor:sw-resize !important;}
+.nonblock-cursor-ew-resize{cursor:ew-resize !important;}
+.nonblock-cursor-ns-resize{cursor:ns-resize !important;}
+.nonblock-cursor-nesw-resize{cursor:nesw-resize !important;}
+.nonblock-cursor-nwse-resize{cursor:nwse-resize !important;}
+.nonblock-cursor-zoom-in{cursor:zoom-in !important;}
+.nonblock-cursor-zoom-out{cursor:zoom-out !important;}
+.nonblock-cursor-grab{cursor:grab !important;}
+.nonblock-cursor-grabbing{cursor:grabbing !important;}`);
+
+            // This keeps track of the last element the mouse was over, so
+            // mouseleave, mouseenter, etc can be called.
+            this.nonBlockLastElem = null;
+            // These are used for selecting text under a nonblock element.
+            this.isOverTextNode = false;
+            this.selectingText = false;
+
+            this.onmouseenter = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonBlockLastElem = false;
+                    if (!this.isPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.onmouseleave = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.remCursor(nonblock);
+                    this.nonBlockLastElem = null;
+                    this.selectingText = false;
+                    if (!this.isPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.onmouseover = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target)) && !this.isPropagating(nonblock)) {
+                    ev.stopPropagation();
+                }
+            };
+            this.onmouseout = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target)) && !this.isPropagating(nonblock)) {
+                    ev.stopPropagation();
+                }
+            };
+            this.onmousemove = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonblockPass(nonblock, ev, 'onmousemove');
+                    // If the user just clicks somewhere, we don't want to select text, so this
+                    // detects that the user moved their mouse.
+                    if (this.selectingText === null) {
+                        window.getSelection().removeAllRanges();
+                        this.selectingText = true;
+                    } else if (this.selectingText) {
+                        // Stop the default action, which would be selecting text.
+                        ev.preventDefault();
+                    }
+                    if (!this.isPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.onmousedown = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonblockPass(nonblock, ev, 'onmousedown');
+                    this.selectingText = null;
+                    if (!this.isFocusable(nonblock)) {
+                        // Stop the default action, which would focus the element.
+                        ev.preventDefault();
+                    }
+                    if (!this.isPropagating(nonblock) || !this.isActionPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.onmouseup = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonblockPass(nonblock, ev, 'onmouseup');
+                    if (this.selectingText === null) {
+                        window.getSelection().removeAllRanges();
+                    }
+                    this.selectingText = false;
+                    if (!this.isPropagating(nonblock) || !this.isActionPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.onclick = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonblockPass(nonblock, ev, 'onclick');
+                    if (!this.isPropagating(nonblock) || !this.isActionPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+            this.ondblclick = (ev) => {
+                let nonblock;
+                if (ev.isTrusted && (nonblock = this.getNonBlocking(ev.target))) {
+                    this.nonblockPass(nonblock, ev, 'ondblclick');
+                    if (!this.isPropagating(nonblock) || !this.isActionPropagating(nonblock)) {
+                        ev.stopPropagation();
+                    }
+                }
+            };
+
+            this.root.addEventListener('mouseenter', this.onmouseenter, true);
+            this.root.addEventListener('mouseleave', this.onmouseleave, true);
+            this.root.addEventListener('mouseover', this.onmouseover, true);
+            this.root.addEventListener('mouseout', this.onmouseout, true);
+            this.root.addEventListener('mousemove', this.onmousemove, true);
+            this.root.addEventListener('mousedown', this.onmousedown, true);
+            this.root.addEventListener('mouseup', this.onmouseup, true);
+            this.root.addEventListener('click', this.onclick, true);
+            this.root.addEventListener('dblclick', this.ondblclick, true);
+        }
+
+        destroy() {
+            for (let event of ['mouseenter', 'mouseleave', 'mouseover', 'mouseout', 'mousemove', 'mousedown', 'mouseup', 'click', 'dblclick']) {
+                if (this['on'+event]) {
+                    this.root.removeEventListener(event, this['on'+event], true);
+                    delete this['on'+event];
+                }
+            }
+            this.styling.parentNode.removeChild(this.styling);
+            delete this.styling;
+        }
+
+        addCSS(css) {
+            this.styling = document.createElement('style');
+            this.styling.setAttribute('type', 'text/css');
+            if (this.styling.styleSheet) {
+                this.styling.styleSheet.cssText = css; // IE
+            } else {
+                this.styling.appendChild(document.createTextNode(css));
+            }
+            document.getElementsByTagName('head')[0].appendChild(this.styling);
+        }
+
+        // Fire a DOM event.
+        domEvent(elem, event, origEvent, bubbles) {
+            let eventObject;
+            event = event.toLowerCase();
+            if (this.useEventConstructors) {
+                // New browsers
+                event = event.replace(this.regexOn, '');
+                if (event.match(this.regexMouseEvents)) {
+                    eventObject = new MouseEvent(event, {
+                        screenX: origEvent.screenX,
+                        screenY: origEvent.screenY,
+                        clientX: origEvent.clientX,
+                        clientY: origEvent.clientY,
+                        ctrlKey: origEvent.ctrlKey,
+                        shiftKey: origEvent.shiftKey,
+                        altKey: origEvent.altKey,
+                        metaKey: origEvent.metaKey,
+                        button: origEvent.button,
+                        buttons: origEvent.buttons,
+                        relatedTarget: origEvent.relatedTarget,
+                        region: origEvent.region,
+
+                        detail: origEvent.detail,
+                        view: origEvent.view,
+
+                        bubbles: bubbles === undefined ? origEvent.bubbles : bubbles,
+                        cancelable: origEvent.cancelable,
+                        composed: origEvent.composed
+                    });
+                } else if (event.match(this.regexUiEvents)) {
+                    eventObject = new UIEvent(event, {
+                        detail: origEvent.detail,
+                        view: origEvent.view,
+
+                        bubbles: bubbles === undefined ? origEvent.bubbles : bubbles,
+                        cancelable: origEvent.cancelable,
+                        composed: origEvent.composed
+                    });
+                } else if (event.match(this.regexHtmlEvents)) {
+                    eventObject = new Event(event, {
+                        bubbles: bubbles === undefined ? origEvent.bubbles : bubbles,
+                        cancelable: origEvent.cancelable,
+                        composed: origEvent.composed
+                    });
+                }
+                if (!eventObject) {
+                    return;
+                }
+                elem.dispatchEvent(eventObject);
+            } else if (document.createEvent && elem.dispatchEvent) {
+                // Old method for FireFox, Opera, Safari, Chrome
+                event = event.replace(this.regexOn, '');
+                if (event.match(this.regexMouseEvents)) {
+                    // This allows the click event to fire on the notice. There is
+                    // probably a much better way to do it.
+                    elem.getBoundingClientRect();
+                    eventObject = document.createEvent("MouseEvents");
+                    eventObject.initMouseEvent(event, bubbles === undefined ? origEvent.bubbles : bubbles, origEvent.cancelable, origEvent.view, origEvent.detail, origEvent.screenX, origEvent.screenY, origEvent.clientX, origEvent.clientY, origEvent.ctrlKey, origEvent.altKey, origEvent.shiftKey, origEvent.metaKey, origEvent.button, origEvent.relatedTarget);
+                } else if (event.match(this.regexUiEvents)) {
+                    eventObject = document.createEvent("UIEvents");
+                    eventObject.initUIEvent(event, bubbles === undefined ? origEvent.bubbles : bubbles, origEvent.cancelable, origEvent.view, origEvent.detail);
+                } else if (event.match(this.regexHtmlEvents)) {
+                    eventObject = document.createEvent("HTMLEvents");
+                    eventObject.initEvent(event, bubbles === undefined ? origEvent.bubbles : bubbles, origEvent.cancelable);
+                }
+                if (!eventObject) {
+                    return;
+                }
+                elem.dispatchEvent(eventObject);
+            } else {
+                // Internet Explorer
+                if (!event.match(this.regexOn)) {
+                    event = "on"+event
+                };
+                eventObject = document.createEventObject(origEvent);
+                elem.fireEvent(event, eventObject);
+            }
+        }
+
+        // This is used to pass events through the el if it is nonblocking.
+        nonblockPass(elem, event, eventName) {
+            elem.classList.add('nonblock-hide');
+            const elBelow = document.elementFromPoint(event.clientX, event.clientY);
+            if (this.nonBlockLastElem === false) {
+                this.nonBlockLastElem = elBelow;
+            }
+            let range, textNode, whitespaceBefore, text, offset;
+            if (document.caretPositionFromPoint) {
+                range = document.caretPositionFromPoint(event.clientX, event.clientY);
+                textNode = range ? range.offsetNode : null;
+                offset = range ? range.offset : null;
+            } else if (document.caretRangeFromPoint) {
+                range = document.caretRangeFromPoint(event.clientX, event.clientY);
+                textNode = range ? range.endContainer : null;
+                offset = range ? range.endOffset : null;
+            }
+            if (range) {
+                whitespaceBefore = range.startContainer.textContent.match(/^[\s\n]*/)[0];
+                text = range.startContainer.textContent.replace(/[\s\n]+$/g, '');
+            }
+
+            elem.classList.remove('nonblock-hide');
+            let cursorStyle = this.getCursor(elBelow);
+            this.isOverTextNode = false;
+            if (cursorStyle === 'auto' && elBelow.tagName === 'A') {
+                cursorStyle = 'pointer';
+            } else if (range && (!whitespaceBefore.length || offset > whitespaceBefore.length) && offset < text.length) {
+                if (cursorStyle === 'auto') {
+                    cursorStyle = 'text';
+                }
+                this.isOverTextNode = true;
+            }
+
+            if (range && this.selectingText && offset > 0) {
+                const selection = window.getSelection();
+                let selectionRange;
+                if (selection.rangeCount === 0) {
+                    this.selectingText = {
+                        originContainer: range.startContainer ? range.startContainer : textNode,
+                        originOffset: offset - 1
+                    };
+                    selectionRange = document.createRange();
+                    selection.addRange(selectionRange);
+                } else {
+                    selectionRange = selection.getRangeAt(0);
+                }
+
+                if (
+                    (textNode === this.selectingText.originContainer && offset < this.selectingText.originOffset)
+                    || (textNode.compareDocumentPosition(this.selectingText.originContainer) & Node.DOCUMENT_POSITION_FOLLOWING)
+                ) {
+                    selectionRange.setEnd(this.selectingText.originContainer, this.selectingText.originOffset);
+                    selectionRange.setStart(textNode, offset);
+                } else {
+                    selectionRange.setStart(this.selectingText.originContainer, this.selectingText.originOffset);
+                    selectionRange.setEnd(textNode, offset);
+                }
+            }
+
+            this.setCursor(elem, cursorStyle !== 'auto' ? cursorStyle : 'default');
+            // If the element changed, call mouseenter, mouseleave, etc.
+            if (!this.nonBlockLastElem || this.nonBlockLastElem !== elBelow) {
+                if (this.nonBlockLastElem) {
+                    const lastElem = this.nonBlockLastElem;
+                    if (!lastElem.contains(elBelow)) {
+                        this.domEvent(lastElem, 'mouseleave', event, false);
+                    }
+                    this.domEvent(lastElem, 'mouseout', event, true);
+                    if (!elBelow.contains(lastElem)) {
+                        this.domEvent(elBelow, 'mouseenter', event, false);
+                    }
+                } else if (!elBelow.contains(elem)) {
+                    this.domEvent(elBelow, 'mouseenter', event, false);
+                }
+                this.domEvent(elBelow, 'mouseover', event, true);
+            }
+
+            // If the event is mousedown, then we need to focus the element.
+            if (eventName === 'onmousedown') {
+                document.activeElement && document.activeElement.blur();
+                elBelow.focus({preventScroll: true});
+            }
+
+            // Forward the event.
+            this.domEvent(elBelow, eventName, event);
+            // Remember the latest element the mouse was over.
+            this.nonBlockLastElem = elBelow;
+        }
+
+        getNonBlocking(el) {
+            let nonblock = el;
+            while (nonblock) {
+                if (nonblock.classList && nonblock.classList.contains('nonblock')) {
+                    return nonblock;
+                }
+                nonblock = nonblock.parentNode;
+            }
+            return false;
+        }
+
+        isPropagating(el) {
+            return !el.classList.contains('nonblock-stop-propagation');
+        }
+
+        isActionPropagating(el) {
+            return el.classList.contains('nonblock-allow-action-propagation');
+        }
+
+        isFocusable(el) {
+            return el.classList.contains('nonblock-allow-focus');
+        }
+
+        isSimulateMouse(el) {
+            return !el.classList.contains('nonblock-stop-mouse-simulation');
+        }
+
+        getCursor(el) {
+            const style = window.getComputedStyle(el);
+            return style.getPropertyValue('cursor');
+        }
+
+        setCursor(el, value) {
+            if (el.classList.contains('nonblock-cursor-' + value)) {
+                return;
+            }
+            this.remCursor(el);
+            el.classList.add('nonblock-cursor-' + value);
+        }
+
+        remCursor(el) {
+            const values = Object.keys(el.classList).map(e => el.classList[e]);
+            [...values].forEach((className) => {
+                if (className.indexOf('nonblock-cursor-') === 0) {
+                    el.classList.remove(className);
+                }
+            });
+        }
+    }
+
+    return NonBlock;
+})());
+define("NonBlock", function(){});
+
+define('pnotify.loader',[
+    'PNotify',
+    'PNotifyButtons',
+    'PNotifyCallbacks',
+    'PNotifyDesktop',
+    'NonBlock'
+], (PNotify) => {
+    'use strict';
+
+    let stackConfig = {
+        bottomRight: {
+            stack: {
+                dir1: 'up',
+                dir2: 'left',
+                firstpos1: 32,
+                firstpos2: 10,
+                spacing1: 5,
+                spacing2: 5,
+                push: 'bottom',
+                context: document.body
+            }
+        },
+        barBottom: {
+            stack: {
+                dir1: 'up',
+                firstpos1: 32,
+                spacing1: 0,
+                context: document.querySelector(`.pf-site`)
+            },
+            addclass: 'stack-bar-bottom'
+        }
+    };
+
+    /**
+     * default PNotify config
+     */
+    let initDefaultPNotifyConfig = () => {
+        PNotify.defaults.styling = 'bootstrap3';
+        PNotify.defaults.icons = 'fontawesome5';
+        PNotify.defaults.addClass = 'nonblock';
+        PNotify.defaults.delay = 5000;
+        PNotify.defaults.width = '250px';
+        PNotify.defaults.animateSpeed = 'fast';
+
+        PNotify.defaults.stack = stackConfig.bottomRight.stack;
+
+        PNotify.modules.Desktop.defaults.icon = '/public/img/notifications/logo.png';
+    };
+
+    /**
+     * show browser/desktop notification
+     * @param config
+     * @param options
+     */
+    let showNotify = (config = {}, options = {}) => {
+
+        if(options.desktop){
+            config.modules = {
+                Desktop: Object.assign({}, {desktop: true}, options.desktop)
+            };
+        }
+
+        switch(config.type){
+            case 'info':
+                config.icon = 'fas fa-info fa-fw fa-lg';
+                break;
+            case 'success':
+                config.icon = 'fas fa-check fa-fw fa-lg';
+                break;
+            case 'notice':
+            case 'warning':
+                config.icon = 'fas fa-exclamation-triangle fa-fw fa-lg';
+                config.type = 'notice';
+                break;
+            case 'error':
+                config.icon = 'fas fa-times fa-fw fa-lg';
+                break;
+            case 'lock':
+                config.icon = 'fas fa-lock fa-fw fa-lg';
+                config.type = 'success';
+                break;
+            case 'unlock':
+                config.icon = 'fas fa-unlock fa-fw fa-lg';
+                config.type = 'info';
+                break;
+            default:
+                config.icon = false;
+        }
+
+        if(options.stack){
+            config.stack = stackConfig[options.stack].stack;
+            config.addClass = stackConfig[options.stack].addclass;
+        }
+
+        let notice = PNotify.alert(config);
+
+        if(typeof options.click === 'function'){
+            notice.refs.elem.style.cursor = 'pointer';
+            notice.on('click', options.click);
+        }
+    };
+
+    initDefaultPNotifyConfig();
+
+    return {
+        showNotify: showNotify
+    };
+});
+/**
+ * @license RequireJS text 2.0.12 Copyright (c) 2010-2014, The Dojo Foundation All Rights Reserved.
+ * Available via the MIT or new BSD license.
+ * see: http://github.com/requirejs/text for details
+ */
+/*jslint regexp: true */
+/*global require, XMLHttpRequest, ActiveXObject,
+  define, window, process, Packages,
+  java, location, Components, FileUtils */
+
+define('text',['module'], function (module) {
+    'use strict';
+
+    var text, fs, Cc, Ci, xpcIsWindows,
+        progIds = ['Msxml2.XMLHTTP', 'Microsoft.XMLHTTP', 'Msxml2.XMLHTTP.4.0'],
+        xmlRegExp = /^\s*<\?xml(\s)+version=[\'\"](\d)*.(\d)*[\'\"](\s)*\?>/im,
+        bodyRegExp = /<body[^>]*>\s*([\s\S]+)\s*<\/body>/im,
+        hasLocation = typeof location !== 'undefined' && location.href,
+        defaultProtocol = hasLocation && location.protocol && location.protocol.replace(/\:/, ''),
+        defaultHostName = hasLocation && location.hostname,
+        defaultPort = hasLocation && (location.port || undefined),
+        buildMap = {},
+        masterConfig = (module.config && module.config()) || {};
+
+    text = {
+        version: '2.0.12',
+
+        strip: function (content) {
+            //Strips <?xml ...?> declarations so that external SVG and XML
+            //documents can be added to a document without worry. Also, if the string
+            //is an HTML document, only the part inside the body tag is returned.
+            if (content) {
+                content = content.replace(xmlRegExp, "");
+                var matches = content.match(bodyRegExp);
+                if (matches) {
+                    content = matches[1];
+                }
+            } else {
+                content = "";
+            }
+            return content;
+        },
+
+        jsEscape: function (content) {
+            return content.replace(/(['\\])/g, '\\$1')
+                .replace(/[\f]/g, "\\f")
+                .replace(/[\b]/g, "\\b")
+                .replace(/[\n]/g, "\\n")
+                .replace(/[\t]/g, "\\t")
+                .replace(/[\r]/g, "\\r")
+                .replace(/[\u2028]/g, "\\u2028")
+                .replace(/[\u2029]/g, "\\u2029");
+        },
+
+        createXhr: masterConfig.createXhr || function () {
+            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+            var xhr, i, progId;
+            if (typeof XMLHttpRequest !== "undefined") {
+                return new XMLHttpRequest();
+            } else if (typeof ActiveXObject !== "undefined") {
+                for (i = 0; i < 3; i += 1) {
+                    progId = progIds[i];
+                    try {
+                        xhr = new ActiveXObject(progId);
+                    } catch (e) {}
+
+                    if (xhr) {
+                        progIds = [progId];  // so faster next time
+                        break;
+                    }
+                }
+            }
+
+            return xhr;
+        },
+
+        /**
+         * Parses a resource name into its component parts. Resource names
+         * look like: module/name.ext!strip, where the !strip part is
+         * optional.
+         * @param {String} name the resource name
+         * @returns {Object} with properties "moduleName", "ext" and "strip"
+         * where strip is a boolean.
+         */
+        parseName: function (name) {
+            var modName, ext, temp,
+                strip = false,
+                index = name.indexOf("."),
+                isRelative = name.indexOf('./') === 0 ||
+                             name.indexOf('../') === 0;
+
+            if (index !== -1 && (!isRelative || index > 1)) {
+                modName = name.substring(0, index);
+                ext = name.substring(index + 1, name.length);
+            } else {
+                modName = name;
+            }
+
+            temp = ext || modName;
+            index = temp.indexOf("!");
+            if (index !== -1) {
+                //Pull off the strip arg.
+                strip = temp.substring(index + 1) === "strip";
+                temp = temp.substring(0, index);
+                if (ext) {
+                    ext = temp;
+                } else {
+                    modName = temp;
+                }
+            }
+
+            return {
+                moduleName: modName,
+                ext: ext,
+                strip: strip
+            };
+        },
+
+        xdRegExp: /^((\w+)\:)?\/\/([^\/\\]+)/,
+
+        /**
+         * Is an URL on another domain. Only works for browser use, returns
+         * false in non-browser environments. Only used to know if an
+         * optimized .js version of a text resource should be loaded
+         * instead.
+         * @param {String} url
+         * @returns Boolean
+         */
+        useXhr: function (url, protocol, hostname, port) {
+            var uProtocol, uHostName, uPort,
+                match = text.xdRegExp.exec(url);
+            if (!match) {
+                return true;
+            }
+            uProtocol = match[2];
+            uHostName = match[3];
+
+            uHostName = uHostName.split(':');
+            uPort = uHostName[1];
+            uHostName = uHostName[0];
+
+            return (!uProtocol || uProtocol === protocol) &&
+                   (!uHostName || uHostName.toLowerCase() === hostname.toLowerCase()) &&
+                   ((!uPort && !uHostName) || uPort === port);
+        },
+
+        finishLoad: function (name, strip, content, onLoad) {
+            content = strip ? text.strip(content) : content;
+            if (masterConfig.isBuild) {
+                buildMap[name] = content;
+            }
+            onLoad(content);
+        },
+
+        load: function (name, req, onLoad, config) {
+            //Name has format: some.module.filext!strip
+            //The strip part is optional.
+            //if strip is present, then that means only get the string contents
+            //inside a body tag in an HTML string. For XML/SVG content it means
+            //removing the <?xml ...?> declarations so the content can be inserted
+            //into the current doc without problems.
+
+            // Do not bother with the work if a build and text will
+            // not be inlined.
+            if (config && config.isBuild && !config.inlineText) {
+                onLoad();
+                return;
+            }
+
+            masterConfig.isBuild = config && config.isBuild;
+
+            var parsed = text.parseName(name),
+                nonStripName = parsed.moduleName +
+                    (parsed.ext ? '.' + parsed.ext : ''),
+                url = req.toUrl(nonStripName),
+                useXhr = (masterConfig.useXhr) ||
+                         text.useXhr;
+
+            // Do not load if it is an empty: url
+            if (url.indexOf('empty:') === 0) {
+                onLoad();
+                return;
+            }
+
+            //Load the text. Use XHR if possible and in a browser.
+            if (!hasLocation || useXhr(url, defaultProtocol, defaultHostName, defaultPort)) {
+                text.get(url, function (content) {
+                    text.finishLoad(name, parsed.strip, content, onLoad);
+                }, function (err) {
+                    if (onLoad.error) {
+                        onLoad.error(err);
+                    }
+                });
+            } else {
+                //Need to fetch the resource across domains. Assume
+                //the resource has been optimized into a JS module. Fetch
+                //by the module name + extension, but do not include the
+                //!strip part to avoid file system issues.
+                req([nonStripName], function (content) {
+                    text.finishLoad(parsed.moduleName + '.' + parsed.ext,
+                                    parsed.strip, content, onLoad);
+                });
+            }
+        },
+
+        write: function (pluginName, moduleName, write, config) {
+            if (buildMap.hasOwnProperty(moduleName)) {
+                var content = text.jsEscape(buildMap[moduleName]);
+                write.asModule(pluginName + "!" + moduleName,
+                               "define(function () { return '" +
+                                   content +
+                               "';});\n");
+            }
+        },
+
+        writeFile: function (pluginName, moduleName, req, write, config) {
+            var parsed = text.parseName(moduleName),
+                extPart = parsed.ext ? '.' + parsed.ext : '',
+                nonStripName = parsed.moduleName + extPart,
+                //Use a '.js' file name so that it indicates it is a
+                //script that can be loaded across domains.
+                fileName = req.toUrl(parsed.moduleName + extPart) + '.js';
+
+            //Leverage own load() method to load plugin value, but only
+            //write out values that do not have the strip argument,
+            //to avoid any potential issues with ! in file names.
+            text.load(nonStripName, req, function (value) {
+                //Use own write() method to construct full module value.
+                //But need to create shell that translates writeFile's
+                //write() to the right interface.
+                var textWrite = function (contents) {
+                    return write(fileName, contents);
+                };
+                textWrite.asModule = function (moduleName, contents) {
+                    return write.asModule(moduleName, fileName, contents);
+                };
+
+                text.write(pluginName, nonStripName, textWrite, config);
+            }, config);
+        }
+    };
+
+    if (masterConfig.env === 'node' || (!masterConfig.env &&
+            typeof process !== "undefined" &&
+            process.versions &&
+            !!process.versions.node &&
+            !process.versions['node-webkit'])) {
+        //Using special require.nodeRequire, something added by r.js.
+        fs = require.nodeRequire('fs');
+
+        text.get = function (url, callback, errback) {
+            try {
+                var file = fs.readFileSync(url, 'utf8');
+                //Remove BOM (Byte Mark Order) from utf8 files if it is there.
+                if (file.indexOf('\uFEFF') === 0) {
+                    file = file.substring(1);
+                }
+                callback(file);
+            } catch (e) {
+                if (errback) {
+                    errback(e);
+                }
+            }
+        };
+    } else if (masterConfig.env === 'xhr' || (!masterConfig.env &&
+            text.createXhr())) {
+        text.get = function (url, callback, errback, headers) {
+            var xhr = text.createXhr(), header;
+            xhr.open('GET', url, true);
+
+            //Allow plugins direct access to xhr headers
+            if (headers) {
+                for (header in headers) {
+                    if (headers.hasOwnProperty(header)) {
+                        xhr.setRequestHeader(header.toLowerCase(), headers[header]);
+                    }
+                }
+            }
+
+            //Allow overrides specified in config
+            if (masterConfig.onXhr) {
+                masterConfig.onXhr(xhr, url);
+            }
+
+            xhr.onreadystatechange = function (evt) {
+                var status, err;
+                //Do not explicitly handle errors, those should be
+                //visible via console output in the browser.
+                if (xhr.readyState === 4) {
+                    status = xhr.status || 0;
+                    if (status > 399 && status < 600) {
+                        //An http 4xx or 5xx error. Signal an error.
+                        err = new Error(url + ' HTTP status: ' + status);
+                        err.xhr = xhr;
+                        if (errback) {
+                            errback(err);
+                        }
+                    } else {
+                        callback(xhr.responseText);
+                    }
+
+                    if (masterConfig.onXhrComplete) {
+                        masterConfig.onXhrComplete(xhr, url);
+                    }
+                }
+            };
+            xhr.send(null);
+        };
+    } else if (masterConfig.env === 'rhino' || (!masterConfig.env &&
+            typeof Packages !== 'undefined' && typeof java !== 'undefined')) {
+        //Why Java, why is this so awkward?
+        text.get = function (url, callback) {
+            var stringBuffer, line,
+                encoding = "utf-8",
+                file = new java.io.File(url),
+                lineSeparator = java.lang.System.getProperty("line.separator"),
+                input = new java.io.BufferedReader(new java.io.InputStreamReader(new java.io.FileInputStream(file), encoding)),
+                content = '';
+            try {
+                stringBuffer = new java.lang.StringBuffer();
+                line = input.readLine();
+
+                // Byte Order Mark (BOM) - The Unicode Standard, version 3.0, page 324
+                // http://www.unicode.org/faq/utf_bom.html
+
+                // Note that when we use utf-8, the BOM should appear as "EF BB BF", but it doesn't due to this bug in the JDK:
+                // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4508058
+                if (line && line.length() && line.charAt(0) === 0xfeff) {
+                    // Eat the BOM, since we've already found the encoding on this file,
+                    // and we plan to concatenating this buffer with others; the BOM should
+                    // only appear at the top of a file.
+                    line = line.substring(1);
+                }
+
+                if (line !== null) {
+                    stringBuffer.append(line);
+                }
+
+                while ((line = input.readLine()) !== null) {
+                    stringBuffer.append(lineSeparator);
+                    stringBuffer.append(line);
+                }
+                //Make sure we return a JavaScript string and not a Java string.
+                content = String(stringBuffer.toString()); //String
+            } finally {
+                input.close();
+            }
+            callback(content);
+        };
+    } else if (masterConfig.env === 'xpconnect' || (!masterConfig.env &&
+            typeof Components !== 'undefined' && Components.classes &&
+            Components.interfaces)) {
+        //Avert your gaze!
+        Cc = Components.classes;
+        Ci = Components.interfaces;
+        Components.utils['import']('resource://gre/modules/FileUtils.jsm');
+        xpcIsWindows = ('@mozilla.org/windows-registry-key;1' in Cc);
+
+        text.get = function (url, callback) {
+            var inStream, convertStream, fileObj,
+                readData = {};
+
+            if (xpcIsWindows) {
+                url = url.replace(/\//g, '\\');
+            }
+
+            fileObj = new FileUtils.File(url);
+
+            //XPCOM, you so crazy
+            try {
+                inStream = Cc['@mozilla.org/network/file-input-stream;1']
+                           .createInstance(Ci.nsIFileInputStream);
+                inStream.init(fileObj, 1, 0, false);
+
+                convertStream = Cc['@mozilla.org/intl/converter-input-stream;1']
+                                .createInstance(Ci.nsIConverterInputStream);
+                convertStream.init(inStream, "utf-8", inStream.available(),
+                Ci.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
+
+                convertStream.readString(inStream.available(), readData);
+                convertStream.close();
+                inStream.close();
+                callback(readData.value);
+            } catch (e) {
+                throw new Error((fileObj && fileObj.path || '') + ': ' + e);
+            }
+        };
+    }
+    return text;
+});
+
