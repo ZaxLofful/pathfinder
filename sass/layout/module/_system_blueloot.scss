@@ -1,0 +1,147 @@
+// Blue Loot Module Styles
+// --------------------------------------------------
+
+.pf-system-blueloot-module {
+  .pf-blueloot-body {
+    padding: 8px;
+  }
+
+  .pf-blueloot-header {
+    margin-bottom: 10px;
+    
+    .pf-blueloot-info {
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 8px;
+      padding: 4px 6px;
+      background-color: rgba(255, 255, 255, 0.05);
+      border-left: 3px solid #0088cc;
+      border-radius: 2px;
+    }
+    
+    .pf-blueloot-select {
+      width: 100%;
+      padding: 4px 8px;
+      border: 1px solid #333;
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+      border-radius: 3px;
+      font-size: 12px;
+      
+      &:focus {
+        outline: none;
+        border-color: #0088cc;
+      }
+    }
+  }
+
+  .pf-blueloot-list {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    border: 1px solid #333;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
+  .pf-blueloot-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 136, 204, 0.1);
+    }
+    
+    &:last-child {
+      border-bottom: none;
+    }
+    
+    .pf-blueloot-system-name {
+      font-weight: 600;
+      color: #e0e0e0;
+      font-size: 12px;
+    }
+    
+    .pf-blueloot-distance {
+      font-size: 11px;
+      color: #888;
+      background-color: rgba(255, 255, 255, 0.1);
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 60px;
+      text-align: center;
+    }
+  }
+
+  .pf-blueloot-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    .pf-blueloot-pagination-btn {
+      background-color: #333;
+      border: 1px solid #555;
+      color: #e0e0e0;
+      padding: 4px 8px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      min-width: 30px;
+      
+      &:hover:not(:disabled) {
+        background-color: #444;
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+    
+    .pf-blueloot-page-info {
+      font-size: 11px;
+      color: #888;
+    }
+  }
+
+  .pf-blueloot-footer {
+    .pf-blueloot-import-btn {
+      width: 100%;
+      padding: 6px 8px;
+      background-color: #0088cc;
+      border: 1px solid #006bb3;
+      color: white;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 12px;
+      
+      &:hover {
+        background-color: #006bb3;
+      }
+    }
+  }
+
+  // Custom scrollbar for the list
+  .pf-blueloot-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .pf-blueloot-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .pf-blueloot-list::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #666;
+    }
+  }
+}
